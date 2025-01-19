@@ -5,7 +5,6 @@ const cloudinary = require("../config/cloudinary");
 exports.createMovies = async (req, res) => {
   const {
     name,
-    confirm,
     time,
     approxiT,
     popular,
@@ -49,11 +48,10 @@ exports.createMovies = async (req, res) => {
 
     let imageUrl = null;
     let videoUrl = null;
-
-    // Validate file presence
-    if (!req.files.image || !req.files.video) {
+    if (!req.files || !req.files.image || !req.files.video) {
       return res.status(400).json({ message: "Image or video file missing" });
     }
+    console.log(req.files);
 
     try {
       // Upload image to Cloudinary
@@ -66,7 +64,6 @@ exports.createMovies = async (req, res) => {
           message: "Unable to upload image",
         });
       }
-
       // Upload video to Cloudinary
       videoUrl = await uploadToCloudinary(req.files.video[0].buffer, "video");
       console.log("Video URL after upload:", videoUrl);
@@ -91,7 +88,6 @@ exports.createMovies = async (req, res) => {
         name,
         image: imageUrl,
         video: videoUrl,
-        confirm,
         time,
         approxiT,
         popular: Boolean(popular),
@@ -101,9 +97,9 @@ exports.createMovies = async (req, res) => {
         approxiR,
         language,
         description,
-        price: parseFloat(rating),
+        price: parseFloat(price),
         trailer,
-        categoryId: parseInt(categoryId),
+        categoryId: parseInt(movieCategory.id),
       },
     });
 
@@ -123,7 +119,7 @@ exports.createMovies = async (req, res) => {
     console.error("Error:", error.message);
     return res.status(400).json({
       success: false,
-      message: "Movie creation failed",
+      message: error.message,
     });
   }
 };

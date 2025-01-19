@@ -7,8 +7,8 @@ const router = express.Router();
 router.post(
   "/api/createMovies",
   uploads.fields([
-    { name: "image", maxCount: 1 }, // Expecting a single image file
-    { name: "video", maxCount: 1 }, // Expecting a single video file
+    { name: "image", maxCount: 10 }, // Expecting a single image file
+    { name: "video", maxCount: 10 }, // Expecting a single video file
   ]),
   movieController.createMovies
 );
