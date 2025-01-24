@@ -1,14 +1,19 @@
 const express = require("express");
 const categoryRoute = require("./routers/categoryRoute");
 const moviesRouter = require("./routers/moviesRouter");
+const castRouter = require("./routers/castRouter");
+const userRouter = require("./routers/userRouter");
+const cookieParser = require("cookie-parser");
 
 const cors = require("cors");
-
 const app = express();
 const port = 5000;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Body parsers
+app.use(express.json({ limit: "10mb" })); // For JSON payloads
+app.use(express.urlencoded({ extended: true, limit: "10mb" })); // For URL-encoded payloads
+// Cookie parser  middleware
+app.use(cookieParser());
 
 // CORS Configuration
 app.use(
@@ -20,9 +25,11 @@ app.use(
   })
 );
 
-//Using routers
+// Using routers
 app.use("/", categoryRoute);
 app.use("/", moviesRouter);
+app.use("/", castRouter);
+app.use("/", userRouter);
 
 app.listen(port, () => {
   console.log(`Listening at port ${port}`);

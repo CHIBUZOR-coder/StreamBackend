@@ -53,7 +53,7 @@ exports.getCategory = async (req, res) => {
     }
 
     res.status(200);
-    return res.json({
+    res.json({
       success: true,
       message: "Category retrived successfully",
       data: categories,

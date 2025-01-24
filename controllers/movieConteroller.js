@@ -123,6 +123,7 @@ exports.createMovies = async (req, res) => {
     });
   }
 };
+
 const uploadToCloudinary = async (fileBuffer, resourceType) => {
   try {
     const uploadPromise = new Promise((resolve, reject) => {
@@ -143,5 +144,121 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
   } catch (error) {
     console.error("Upload failed:", error);
     throw new Error("Upload failed");
+  }
+};
+
+//Get Movies
+exports.getMovies = async (req, res) => {
+  try {
+    const movies = await prisma.movies.findMany();
+
+    if (!movies) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Unable to fetch movies" });
+    }
+
+    res.status(200);
+
+    return res.json({
+      success: true,
+      message: "Movies retrived successfully",
+      data: movies,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+//Update
+exports.UpdateMovie = async (req, res) => {
+  const { name, movieId } = req.body;
+  console.log(req.body);
+
+  try {
+    const movie = await prisma.movies.findUnique({
+      where: { id: parseInt(movieId) },
+    });
+    if (!movie) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie does not exist" });
+    }
+
+    const updatedMovies = await prisma.movies.update({
+      where: { id: parseInt(movieId) },
+      data: { name },
+    });
+
+    if (!updatedMovies) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Unable to update movie" });
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Movie updated successfully",
+      data: updatedMovies,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+//Delete Movie
+exports.deleteAllMovie = async (req, res) => {
+  try {
+    const deletedMovies = await prisma.movies.deleteMany();
+    if (deletedMovies.count === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No movies found to delete.",
+      });
+    }
+    return res
+      .status(200)
+      .json({ success: true, message: "Movies Deleted successfully" });
+  } catch (error) {
+   console.error("Error deleting movies:", error.message);
+   return res.status(500).json({
+     success: false,
+     message: "An error occurred while deleting movies.",
+   });
+  }
+};
+
+//Delete Single
+exports.deleteSingle = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const movie = await prisma.movies.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!movie) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Movie does not exist" });
+    }
+
+    const deleted = await prisma.movies.delete({ where: { id: parseInt(id) } });
+    if (!deleted) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Unable to delete Movie" });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Movie deleted successfully" });
+  } catch (error) {
+    console.error(error.message);
+    return res
+      .status(400)
+      .json({ success: false, message: "Unable to delete Movie" });
   }
 };

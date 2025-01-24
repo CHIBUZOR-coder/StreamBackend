@@ -18,9 +18,9 @@ model User {
   email    String  @unique
   password String
   image    String?
-  FullName String
+  name     String
   phone    String?
-  role     Role?
+  role     Role    @default(USER)
 }
 
 enum Role {
@@ -37,14 +37,14 @@ model Category {
 }
 
 model Movies {
-  id                Int      @id @default(autoincrement())
-  name              String   @unique
+  id                Int             @id @default(autoincrement())
+  name              String          @unique
   image             String
   video             String?
   time              String
   approxiT          String
   popular           Boolean
-  category          Category @relation(fields: [categoryId], references: [id])
+  category          Category        @relation(fields: [categoryId], references: [id])
   categoryId        Int
   year              String
   approxiY          String
@@ -54,6 +54,27 @@ model Movies {
   description       String
   price             Float
   trailer           String
-  created_at        DateTime @default(now())
-  product_update_at DateTime @updatedAt
+  casts             CastsOnMovies[]
+  created_at        DateTime        @default(now())
+  product_update_at DateTime        @updatedAt
+}
+
+model Casts {
+  id                Int             @id @default(autoincrement())
+  name              String          @unique
+  image             String
+  role              String
+  movies            CastsOnMovies[]
+  created_at        DateTime        @default(now())
+  product_update_at DateTime        @updatedAt
+}
+
+model CastsOnMovies {
+  id      Int    @id @default(autoincrement())
+  movieId Int
+  castId  Int
+  movie   Movies @relation(fields: [movieId], references: [id])
+  cast    Casts  @relation(fields: [castId], references: [id])
+
+  @@unique([movieId, castId])
 }
