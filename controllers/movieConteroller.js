@@ -22,6 +22,23 @@ exports.createMovies = async (req, res) => {
   try {
     console.log("Request Body:", req.body);
 
+    if (
+      !name ||
+      !time ||
+      !year ||
+      !rating ||
+      !language ||
+      !description ||
+      !price ||
+      !trailer ||
+      !categoryId
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required fields",
+      });
+    }
+
     // Check if the movie already exists
     const existingMovie = await prisma.movies.findUnique({
       where: { name: name },
@@ -222,11 +239,11 @@ exports.deleteAllMovie = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Movies Deleted successfully" });
   } catch (error) {
-   console.error("Error deleting movies:", error.message);
-   return res.status(500).json({
-     success: false,
-     message: "An error occurred while deleting movies.",
-   });
+    console.error("Error deleting movies:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting movies.",
+    });
   }
 };
 

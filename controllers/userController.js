@@ -6,7 +6,11 @@ const cloudinary = require("../config/cloudinary");
 
 exports.createUser = async (req, res) => {
   const { email, phone, name, password, confirmpassword } = req.body;
-
+  if (!email || !phone || !name || !password || !confirmpassword) {
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required." });
+  }
   try {
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,9 +70,13 @@ exports.createUser = async (req, res) => {
         phone,
       },
     });
-
+    if (!newUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User registration failed." });
+    }
     // Respond with success
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User registered successfully.",
       user: {
