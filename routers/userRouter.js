@@ -35,5 +35,7 @@ router.get("/api/protectedRoute", verifyToken, (req, res) => {
   });
 });
 
+router.put("/updateProfile", userControllers.updateProfile);
+
 module.exports = router;
 //Amakababe00$

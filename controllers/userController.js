@@ -187,3 +187,52 @@ exports.loginuser = async (req, res) => {
     console.error({ message: error.message });
   }
 };
+
+exports.updateProfile = async (req, res) => {
+  const { name, email, newEmail, password } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({
+      success: false,
+      message: "name and email feild must not be empty!",
+    });
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "user does not exists" });
+    }
+    const validatePassword = await bcrypt.compare(password, user.password);
+
+    if (!validatePassword) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User password must be provided before Update!",
+        });
+    }
+    let updatedDetails;
+
+    if (newEmail) {
+      updatedDetails = await prisma.user.update({
+        where: { email },
+        data: { name, email: newEmail },
+      });
+    } else {
+      updatedDetails = await prisma.user.update({
+        where: { email },
+        data: { name, email },
+      });
+    }
+
+    return res
+      .status(201)
+      .json({ success: true, message: "Profile Updated Successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
