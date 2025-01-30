@@ -65,9 +65,9 @@ exports.createMovies = async (req, res) => {
 
     let imageUrl = null;
     let videoUrl = null;
-    if (!req.files || !req.files.image || !req.files.video) {
-      return res.status(400).json({ message: "Image or video file missing" });
-    }
+    // if (!req.files || !req.files.image || !req.files.video) {
+    //   return res.status(400).json({ message: "Image or video file missing" });
+    // }
     console.log(req.files);
 
     try {
@@ -82,14 +82,16 @@ exports.createMovies = async (req, res) => {
         });
       }
       // Upload video to Cloudinary
-      videoUrl = await uploadToCloudinary(req.files.video[0].buffer, "video");
-      console.log("Video URL after upload:", videoUrl);
+      if (req.files.video) {
+        videoUrl = await uploadToCloudinary(req.files.video[0].buffer, "video");
+        console.log("Video URL after upload:", videoUrl);
 
-      if (!videoUrl) {
-        return res.status(400).json({
-          success: false,
-          message: "Unable to upload video",
-        });
+        if (!videoUrl) {
+          return res.status(400).json({
+            success: false,
+            message: "Unable to upload video",
+          });
+        }
       }
     } catch (error) {
       console.error("Upload Error:", error);

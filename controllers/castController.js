@@ -140,7 +140,7 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
     const uploadPromise = new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
-          { resource_type: resourceType, folder: "Movie_Assets" },
+          { resource_type: resourceType, folder: "Casts_Images" },
           (error, result) => {
             if (error) return reject(error);
             resolve(result);

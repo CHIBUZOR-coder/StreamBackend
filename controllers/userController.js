@@ -188,13 +188,176 @@ exports.loginuser = async (req, res) => {
   }
 };
 
-exports.updateProfile = async (req, res) => {
-  const { name, email, newEmail, password } = req.body;
+const getPublicIdFromUrl = (url) => {
+  const parts = url.split("/");
+  const filename = parts[parts.length - 1]; // Extract the last part: "image_id.jpg"
+  const publicId = filename.split(".")[0]; // Remove the extension
+  return `Users/${publicId}`; // Add the folder path back
+};
 
-  if (!name || !email) {
+//Update Profile
+exports.updateProfile = async (req, res) => {
+  const { name, Id, newEmail, password } = req.body;
+
+  if (!name || !Id) {
     return res.status(400).json({
       success: false,
-      message: "name and email feild must not be empty!",
+      message: "Name and Id fields must not be empty!",
+    });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(Id) },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User does not exist" });
+    }
+
+    const validatePassword = await bcrypt.compare(password, user.password);
+    if (!validatePassword) {
+      return res.status(400).json({
+        success: false,
+        message: "User password did not match!",
+      });
+    }
+
+    let updateData = { name }; // Always initialize updateData
+
+    if (req.file) {
+      const publicId = getPublicIdFromUrl(user.image);
+      if (!publicId) {
+        return res.status(400).json({
+          success: false,
+          message: "Unable to retrieve image URL from database",
+        });
+      }
+
+      console.log(publicId);
+      const imageUrl = await updateToCloudinary(
+        req.file.buffer,
+        "image",
+        publicId
+      );
+      if (!imageUrl) {
+        return res.status(400).json({
+          success: false,
+          message: "Unable to upload image to Cloudinary",
+        });
+      }
+
+      updateData.image = imageUrl; // Assign image URL to updateData
+    }
+
+    if (newEmail) {
+      updateData.email = newEmail; // Correctly assign new email
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No update data provided.",
+      });
+    }
+
+    const updatedDetails = await prisma.user.update({
+      where: { id: parseInt(Id) },
+      data: updateData,
+    });
+
+    console.log("updateData:", updateData);
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile Updated Successfully",
+      data: updatedDetails,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(400).json({
+      success: false,
+      message: "An error occurred while updating the profile",
+    });
+  }
+};
+exports.getUser = async (req, res) => {
+  try {
+    // Use req.params if ID is passed in the URL (e.g., /getUser/:id)
+    const { id } = req.params;
+
+    // Validate and parse the ID
+    if (!id || isNaN(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid user ID" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User does not exist" });
+    }
+
+    console.log(user);
+
+    return res.status(200).json({
+      success: true,
+      message: "User found successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const updateToCloudinary = async (
+  fileBuffer,
+  resourceType,
+  publicId = null
+) => {
+  try {
+    const uploadOptions = {
+      resource_type: resourceType,
+      folder: "Users",
+    };
+
+    if (publicId) {
+      uploadOptions.public_id = publicId; // Replace the existing image
+      uploadOptions.overwrite = true; // Allow overwriting the image
+    }
+
+    const uploadPromise = new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(uploadOptions, (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        })
+        .end(fileBuffer);
+    });
+
+    const result = await uploadPromise;
+    console.log("Upload successful:", result);
+    return result;
+  } catch (error) {
+    console.error("Upload failed:", error);
+    throw new Error("Upload failed");
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { email, password, newPassword, confirmpassword } = req.body;
+
+  if (!email || !password || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "one or more  feilds are missing from the form please make sure all feilds are not empty!",
     });
   }
   try {
@@ -202,37 +365,42 @@ exports.updateProfile = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: "user does not exists" });
+        .json({ success: false, message: "User not found!" });
     }
-    const validatePassword = await bcrypt.compare(password, user.password);
 
+    if (confirmpassword !== newPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Password does not match" });
+    }
+
+    const validatePassword = await bcrypt.compare(password, user.password);
     if (!validatePassword) {
       return res
         .status(400)
-        .json({
-          success: false,
-          message: "User password must be provided before Update!",
-        });
+        .json({ success: false, message: "password is incorrect!" });
     }
-    let updatedDetails;
 
-    if (newEmail) {
-      updatedDetails = await prisma.user.update({
-        where: { email },
-        data: { name, email: newEmail },
-      });
-    } else {
-      updatedDetails = await prisma.user.update({
-        where: { email },
-        data: { name, email },
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters.",
       });
     }
+
+    const salt = await bcrypt.genSalt(11);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    const updatedUser = await prisma.user.update({
+      where: { email: user.email },
+      data: { password: hashedPassword },
+    });
 
     return res
-      .status(201)
-      .json({ success: true, message: "Profile Updated Successfully" });
+      .status(200)
+      .json({ success: true, message: "Password updated successfully!" });
   } catch (error) {
-    console.error(error.message);
-    res.status(400).json({ success: false, message: error.message });
+    console.log(error.message);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

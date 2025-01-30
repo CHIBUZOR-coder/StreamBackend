@@ -35,7 +35,13 @@ router.get("/api/protectedRoute", verifyToken, (req, res) => {
   });
 });
 
-router.put("/updateProfile", userControllers.updateProfile);
+router.put(
+  "/updateProfile",
+  uploads.single("image"),
+  userControllers.updateProfile
+);
+
+router.get("/getUser/:id", userControllers.getUser);
 
 module.exports = router;
 //Amakababe00$
