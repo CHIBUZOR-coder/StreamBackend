@@ -41,7 +41,10 @@ router.put(
   userControllers.updateProfile
 );
 
+router.put("/updatepassword", userControllers.changePassword);
 router.get("/getUser/:id", userControllers.getUser);
+router.get("/getAllUser", userControllers.getAllUsers);
+router.delete("/deleteUser", userControllers.deleteUser);
 
 module.exports = router;
 //Amakababe00$

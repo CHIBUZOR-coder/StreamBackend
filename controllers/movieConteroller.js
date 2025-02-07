@@ -169,7 +169,16 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
 //Get Movies
 exports.getMovies = async (req, res) => {
   try {
-    const movies = await prisma.movies.findMany();
+    const movies = await prisma.movies.findMany({
+      include: {
+        casts: {
+          include: {
+            cast: true, // This ensures you get the full Cast details
+          },
+        },
+        category: true,
+      },
+    });
 
     if (!movies) {
       return res

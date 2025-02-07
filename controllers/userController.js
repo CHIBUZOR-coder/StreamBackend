@@ -188,6 +188,61 @@ exports.loginuser = async (req, res) => {
   }
 };
 
+exports.getUser = async (req, res) => {
+  try {
+    // Use req.params if ID is passed in the URL (e.g., /getUser/:id)
+    const { id } = req.params;
+
+    // Validate and parse the ID
+    if (!id || isNaN(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid user ID" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User does not exist" });
+    }
+
+    console.log(user);
+
+    return res.status(200).json({
+      success: true,
+      message: "User found successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+//Get all users
+exports.getAllUsers = async (req, res) => {
+  try {
+    const AllUsers = await prisma.user.findMany();
+
+    if (!AllUsers.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Unable to get All users" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "All users retrived successfully",
+      data: AllUsers,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 const getPublicIdFromUrl = (url) => {
   const parts = url.split("/");
   const filename = parts[parts.length - 1]; // Extract the last part: "image_id.jpg"
@@ -283,38 +338,6 @@ exports.updateProfile = async (req, res) => {
     });
   }
 };
-exports.getUser = async (req, res) => {
-  try {
-    // Use req.params if ID is passed in the URL (e.g., /getUser/:id)
-    const { id } = req.params;
-
-    // Validate and parse the ID
-    if (!id || isNaN(id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid user ID" });
-    }
-
-    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
-
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User does not exist" });
-    }
-
-    console.log(user);
-
-    return res.status(200).json({
-      success: true,
-      message: "User found successfully",
-      data: user,
-    });
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-};
 
 const updateToCloudinary = async (
   fileBuffer,
@@ -353,6 +376,8 @@ const updateToCloudinary = async (
 exports.changePassword = async (req, res) => {
   const { email, password, newPassword, confirmpassword } = req.body;
 
+  console.log("body:", req.body);
+
   if (!email || !password || !newPassword) {
     return res.status(400).json({
       success: false,
@@ -378,7 +403,7 @@ exports.changePassword = async (req, res) => {
     if (!validatePassword) {
       return res
         .status(400)
-        .json({ success: false, message: "password is incorrect!" });
+        .json({ success: false, message: "Incorrect current password!" });
     }
 
     if (newPassword.length < 8) {
@@ -403,4 +428,78 @@ exports.changePassword = async (req, res) => {
     console.log(error.message);
     return res.status(500).json({ success: false, message: error.message });
   }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    console.log("userId:", userId);
+
+    if (!userId) {
+      return res
+        .status(404)
+        .json({ success: false, message: "The feild userId is missing" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    // 1. Delete all records from FavouriteCartMovies that reference the user's FavouriteCart
+    const deletedFavouriteCartMovies =
+      await prisma.favouriteCartMovies.deleteMany({
+        where: {
+          favouriteCart: {
+            userId: user.id,
+          },
+        },
+      });
+    if (!deletedFavouriteCartMovies) {
+      return res.status(400).json({
+        success: false,
+        message: "Unable to delete user  favouritecart",
+      });
+    }
+
+    // 2. Delete all records from FavouriteCart that reference the user
+    const FavouriteCart = await prisma.favouriteCart.deleteMany({
+      where: { userId: user.id },
+    });
+
+    if (!FavouriteCart) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Unable to delete favouritecart" });
+    }
+
+    const deletedUser = await prisma.user.delete({
+      where: { id: parseInt(userId) },
+    });
+
+    if (!deletedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Unable to delete user" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      data: deletedUser,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.watchCount = async (req, res) => {
+  try {
+  } catch (error) {}
 };

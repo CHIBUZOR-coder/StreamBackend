@@ -4,6 +4,7 @@ const moviesRouter = require("./routers/moviesRouter");
 const castRouter = require("./routers/castRouter");
 const userRouter = require("./routers/userRouter");
 const cookieParser = require("cookie-parser");
+const favouriteCartRouter = require("./routers/favouriteCartRouter");
 
 const cors = require("cors");
 const app = express();
@@ -30,6 +31,7 @@ app.use("/", categoryRoute);
 app.use("/", moviesRouter);
 app.use("/", castRouter);
 app.use("/", userRouter);
+app.use("/", favouriteCartRouter);
 
 app.listen(port, () => {
   console.log(`Listening at port ${port}`);
