@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const uploads = require("../middlewares/uploads");
 const userControllers = require("../controllers/userController");
-const { verifyToken } = require("../middlewares/Verification");
+const { verifyToken, verifyAdmin } = require("../middlewares/Verification");
 
 //router
 router.post(
@@ -42,7 +42,8 @@ router.put(
 );
 
 router.put("/updatepassword", userControllers.changePassword);
-router.get("/getUser/:id", userControllers.getUser);
+router.get("/getUser/:name", userControllers.getUser);
+router.get("/getAdmin/:name", verifyAdmin, userControllers.getUser);
 router.get("/getAllUser", userControllers.getAllUsers);
 router.delete("/deleteUser", userControllers.deleteUser);
 

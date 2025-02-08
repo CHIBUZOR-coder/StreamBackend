@@ -191,16 +191,22 @@ exports.loginuser = async (req, res) => {
 exports.getUser = async (req, res) => {
   try {
     // Use req.params if ID is passed in the URL (e.g., /getUser/:id)
-    const { id } = req.params;
+    const { name } = req.params;
 
     // Validate and parse the ID
-    if (!id || isNaN(id)) {
+    //  if (!id || Number.isNaN(Number(id))) {
+    //    return res
+    //      .status(400)
+    //      .json({ success: false, message: "Invalid user ID" });
+    //  }
+
+    if (!name) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid user ID" });
+        .json({ success: false, message: "Invalid user name" });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+    const user = await prisma.user.findUnique({ where: { name } });
 
     if (!user) {
       return res
@@ -208,6 +214,56 @@ exports.getUser = async (req, res) => {
         .json({ success: false, message: "User does not exist" });
     }
 
+    console.log(user);
+
+    return res.status(200).json({
+      success: true,
+      message: "User found successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.getAdmin = async (req, res) => {
+  try {
+    // Use req.params if ID is passed in the URL (e.g., /getUser/:id)
+    const { name } = req.params;
+
+    // Validate and parse the ID
+    //  if (!id || Number.isNaN(Number(id))) {
+    //    return res
+    //      .status(400)
+    //      .json({ success: false, message: "Invalid user ID" });
+    //  }
+
+    if (!name) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid user name" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { name },
+      select: {
+        role: true,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User does not exist" });
+    }
+
+    if (user.role !== "ADMIN") {
+      return res.status(401).json({
+        success: false,
+        message: " You are accessing an Unauthorized route!",
+      });
+    }
     console.log(user);
 
     return res.status(200).json({

@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 exports.addToFavouriteCart = async (req, res) => {
   const { movieId, Id } = req.body;
-  // console.log("movieId:", movieId);
+  console.log("movieId:", movieId);
 
   try {
     //find the cart

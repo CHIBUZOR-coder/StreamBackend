@@ -18,7 +18,7 @@ model User {
   email         String         @unique
   password      String
   image         String?
-  name          String
+  name          String         @unique
   phone         String?
   role          Role           @default(USER)
   favouriteCart FavouriteCart?
