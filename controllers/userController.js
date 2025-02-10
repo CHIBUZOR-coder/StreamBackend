@@ -1,8 +1,14 @@
-const { generateToken } = require("../middlewares/generateToken");
+const {
+  generateToken,
+  ResetPasswordToken,
+} = require("../middlewares/generateToken");
 const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const cloudinary = require("../config/cloudinary");
+const transporter = require("../config/email");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 exports.createUser = async (req, res) => {
   const { email, phone, name, password, confirmpassword } = req.body;
@@ -192,13 +198,6 @@ exports.getUser = async (req, res) => {
   try {
     // Use req.params if ID is passed in the URL (e.g., /getUser/:id)
     const { name } = req.params;
-
-    // Validate and parse the ID
-    //  if (!id || Number.isNaN(Number(id))) {
-    //    return res
-    //      .status(400)
-    //      .json({ success: false, message: "Invalid user ID" });
-    //  }
 
     if (!name) {
       return res
@@ -558,4 +557,163 @@ exports.deleteUser = async (req, res) => {
 exports.watchCount = async (req, res) => {
   try {
   } catch (error) {}
+};
+
+exports.accountRecovery = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        name: true,
+        id: true,
+        email: true,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "There is no user with the provided email!",
+      });
+    }
+
+    // Generate a unique reset token
+    // const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetToken = ResetPasswordToken(user);
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        resetToken,
+      },
+    });
+
+    const resetLink = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
+    const mailOptions = {
+      from: process.env.EMAIL_HOST_USER,
+      to: email,
+      subject: "Password Reset Request",
+      html: `
+ <div style="
+    width: 100%;
+    height:600px;
+   
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    border-radius: 10px;
+    overflow: hidden;
+">
+
+    <!-- Background Image Section -->
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="height: 300px;">
+      <tr>
+        <td style="
+          background: url('https://res.cloudinary.com/dtjgj2odu/image/upload/v1739154208/logo_c6zxpk.png') no-repeat center center;
+          background-size: cover;
+       
+        ">
+
+
+     <br>
+       <br>
+         <br>
+           <br>
+
+        </td>
+      </tr>
+    </table>
+
+    <!-- Main Content -->
+    <div style="padding: 20px;  color:  #0B0F29;">
+      <p style="font-size: 16px;">
+        Click the button below to reset your password. This link is valid for 3 minuutes.
+      </p>
+     <a href="${resetLink}" 
+    style="display: inline-block; padding: 12px 24px; background: #0B0F29; 
+    border: 5px solid #0B0F29; color: #F20000; text-decoration: none; 
+    font-weight: bold; border-radius: 5px;" 
+    onmouseover="this.style.background='#FFF'; this.style.color='#0B0F29';"
+    onmouseout="this.style.background='#0B0F29'; this.style.color='#F20000';">
+    Reset Password
+</a>
+
+      <p style="margin-top: 20px; font-size: 14px; color:  #0B0F29;">
+        If you did not request this, please ignore this email.
+      </p>
+    </div>
+  </div>
+`,
+    };
+    await transporter.sendMail(mailOptions);
+    return res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email!",
+    });
+  } catch (error) {
+    console.error("Password reset error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again later.",
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { newPassword, confirmPassword } = req.body;
+
+  try {
+    // Verify the JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    if (!decoded) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired reset token!" });
+    }
+
+    // Find user by reset token and check if it's expired
+    const user = await prisma.user.findUnique({
+      where: { email: decoded.email, resetToken: token },
+    });
+
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords does not match!" });
+    }
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token!",
+      });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(11);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update user's password and clear the reset token
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully!",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again.",
+    });
+  }
 };

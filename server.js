@@ -5,10 +5,11 @@ const castRouter = require("./routers/castRouter");
 const userRouter = require("./routers/userRouter");
 const cookieParser = require("cookie-parser");
 const favouriteCartRouter = require("./routers/favouriteCartRouter");
-
+const dotenv = require("dotenv");
 const cors = require("cors");
 const app = express();
-const port = 5000;
+dotenv.config();
+const port = process.env.PORT;
 
 // Body parsers
 app.use(express.json({ limit: "10mb" })); // For JSON payloads

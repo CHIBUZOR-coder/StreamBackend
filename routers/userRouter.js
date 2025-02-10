@@ -46,6 +46,8 @@ router.get("/getUser/:name", userControllers.getUser);
 router.get("/getAdmin/:name", verifyAdmin, userControllers.getUser);
 router.get("/getAllUser", userControllers.getAllUsers);
 router.delete("/deleteUser", userControllers.deleteUser);
+router.post("/accountRecovery", userControllers.accountRecovery);
+router.post("/resetPassword/:token", userControllers.resetPassword);
 
 module.exports = router;
 //Amakababe00$

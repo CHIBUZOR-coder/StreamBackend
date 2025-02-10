@@ -52,4 +52,34 @@ function generateToken(user) {
   }
 }
 
-module.exports = { generateToken };
+function ResetPasswordToken(user) {
+  try {
+    const { email, name } = user;
+    console.log("user", user);
+
+    if (!email) {
+      console.log("emal is required");
+    } else if (!name) {
+      console.log("name is required");
+    }
+
+    // Payload data
+    const payload = {
+      email,
+      name,
+    };
+
+    // Token options
+    const options = {
+      expiresIn: "3m", // Token validity duration (e.g., 2 hours)
+    };
+
+    // Generate and return the token
+    return jwt.sign(payload, SECRET_KEY, options);
+  } catch (error) {
+    console.error("Error generating token:", error.message);
+    throw error; // Rethrow the error to ensure the calling code handles it
+  }
+}
+
+module.exports = { generateToken, ResetPasswordToken };
