@@ -141,7 +141,8 @@ exports.loginuser = async (req, res) => {
         name: true,
         phone: true,
         image: true,
-        password: true, // Include password for validation
+        password: true,
+        subscription: true, // Include password for validation
       },
     });
 
@@ -187,6 +188,7 @@ exports.loginuser = async (req, res) => {
         phone: user.phone,
         image: user.image,
         id: user.id,
+        subscription: user.subscription,
       },
     });
   } catch (error) {
