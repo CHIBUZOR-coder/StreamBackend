@@ -20,6 +20,30 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+const verifySubscription = async (req, res, next) => {
+  try {
+    const token = req.cookies.auth_token;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "No token provided, authorization denied." });
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+      req.user = decoded;
+      next();
+    } catch (error) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid token." });
+    }
+  } catch (error) {
+    console.error("Subscription Check Error:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 const verifyAdmin = (req, res, next) => {
   console.log("Cookies received in verifyAdmin:", req.cookies); // Debugging log
 
@@ -48,4 +72,4 @@ const verifyAdmin = (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken, verifyAdmin };
+module.exports = { verifyToken, verifyAdmin, verifySubscription };

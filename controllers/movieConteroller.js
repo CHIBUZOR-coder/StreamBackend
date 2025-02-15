@@ -176,7 +176,14 @@ exports.getMovies = async (req, res) => {
             cast: true, // This ensures you get the full Cast details
           },
         },
-        category: true,
+        category: { select: { tittle: true } },
+        movieReviews: {
+          select: {
+            userRating: true,
+            userReview: true,
+            user: { select: { name: true, image: true } },
+          },
+        },
       },
     });
 
@@ -288,5 +295,128 @@ exports.deleteSingle = async (req, res) => {
     return res
       .status(400)
       .json({ success: false, message: "Unable to delete Movie" });
+  }
+};
+
+exports.MovieReviews = async (req, res) => {
+  const { userId, movieId, userRating, userReview } = req.body;
+  const parsedRating = parseInt(userRating);
+
+  console.log("req.body:", req.body);
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User does not exist!",
+      });
+    }
+
+    const movie = await prisma.movies.findUnique({
+      where: { id: parseInt(movieId) },
+    });
+
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found!",
+      });
+    }
+
+    const existingReview = await prisma.movieReviews.findFirst({
+      where: { userId: parseInt(userId), movieId: parseInt(movieId) },
+    });
+
+    let updatedreview;
+    let newRevew;
+    if (!existingReview) {
+      newRevew = await prisma.movieReviews.create({
+        data: {
+          userId: parseInt(userId),
+          movieId: parseInt(movieId),
+          userRating :parsedRating,
+          userReview,
+        },
+      });
+    } else {
+      updatedreview = await prisma.movieReviews.update({
+        where: {
+          user_movie_unique: {
+            userId: parseInt(userId),
+            movieId: parseInt(movieId),
+          },
+        },
+        data: { userRating: parsedRating, userReview },
+      });
+    }
+
+    let rating;
+    const movieToRate = await prisma.movies.findUnique({
+      where: { id: parseInt(movieId) },
+      select: {
+        movieReviews: {
+          select: {
+            userRating: true,
+          },
+        },
+      },
+    });
+
+    if (movieToRate && movieToRate.movieReviews.length > 0) {
+      const totalRate = movieToRate.movieReviews.reduce((acc, curr) => {
+        return acc + Number(curr.userRating);
+      }, 0);
+
+      rating = totalRate / movieToRate.movieReviews.length;
+
+      await prisma.movies.update({
+        where: { id: parseInt(movieId) },
+        data: { rating },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Review and rating updated successfully!",
+      data: updatedreview || newRevew,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the review.",
+    });
+  }
+};
+
+exports.getReviews = async (req, res) => {
+  try {
+    // let avrageReview;
+    const allReview = await prisma.movieReviews.findMany({
+      select: {
+        movie: { select: { name: true } },
+        userRating: true,
+        userReview: true,
+        user: { select: { name: true, image: true, id: true, email: true } },
+      },
+    });
+    if (allReview.length < 1) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reviews not found!" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Reviews retrived successfully",
+      data: allReview,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ success: false, message: error.message });
   }
 };

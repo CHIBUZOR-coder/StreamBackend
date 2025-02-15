@@ -59,11 +59,11 @@ exports.addToFavouriteCart = async (req, res) => {
 
 exports.getFavourite = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { name } = req.params;
 
     // console.log("userId:", id);
 
-    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+    const user = await prisma.user.findUnique({ where: { name } });
 
     if (!user) {
       return res

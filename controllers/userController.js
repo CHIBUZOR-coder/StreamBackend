@@ -719,3 +719,57 @@ exports.resetPassword = async (req, res) => {
     });
   }
 };
+
+exports.subscriptionDetails = async (req, res) => {
+  let { name } = req.params;
+  name = decodeURIComponent(name);
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { name },
+      select: { id: true, name: true },
+    });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!" });
+    }
+
+    // const user = await prisma.user.findFirst({
+    //   where: {
+    //     name: prisma.raw(`LOWER(name) = LOWER('${name}')`), // Convert to lowercase works in all database
+    //   },
+    // });
+    console.log("user:", user);
+
+    // const userReciept = await prisma.receipt.findFirst({
+    //   where: { userId: user.id },
+    // });
+    const userReceipt = await prisma.receipt.findFirst({
+      where: { userId: user.id },
+    });
+    console.log("User receipt found:", userReceipt);
+
+    if (!userReceipt) {
+      return res
+        .status(404)
+        .json({ success: false, message: "unable to find user receipt!" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User receipt retrieved successfully",
+      data: userReceipt,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
+  }
+};
+
+
+
+
