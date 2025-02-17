@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "https://stream-m1p80bn1b-zoes-projects-c78d3faa.vercel.app",
+    origin: "https://stream-ashy-theta.vercel.app/",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "auth_token"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
