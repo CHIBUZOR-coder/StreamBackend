@@ -21,7 +21,7 @@ app.use(cookieParser());
 // CORS Configuration
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from this origin
+    origin: "https://stream-ashy-theta.vercel.app/", // Allow requests from this origin
     credentials: true, // Allow cookies and credentials
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allowed HTTP methods
     allowedHeaders: ["Content-Type", "Authorization", "auth-token"], // Include all custom headers used

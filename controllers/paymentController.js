@@ -78,7 +78,8 @@ exports.initiateSubscription = async (req, res) => {
     console.log(" Checking if FLW_SECRET_KEY exists...");
 
     const redirectUrl =
-      process.env.REDIRECT_URL || "http://localhost:5173/thankyou";
+      process.env.REDIRECT_URL ||
+      "https://stream-ashy-theta.vercel.app/thankyou";
 
     console.log(` Searching for user with email: ${email}`);
     const user = await prisma.user.findUnique({
