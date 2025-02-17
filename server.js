@@ -30,10 +30,10 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "https://stream-m1p80bn1b-zoes-projects-c78d3faa.vercel.app",
-    credentials: true,
+    origin: "https://stream-m1p80bn1b-zoes-projects-c78d3faa.vercel.app", 
+    credentials: true, // ✅ Allow cookies
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "auth-token"],
+    allowedHeaders: ["Content-Type", "Authorization", "auth-token"], 
   })
 );
 
