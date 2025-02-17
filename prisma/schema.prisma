@@ -95,7 +95,6 @@ model Movies {
   year                String
   approxiY            String
   rating              Int?
-
   watchCount  Int    @default(0)
   approxiR    String
   language    String
