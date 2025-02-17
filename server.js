@@ -30,7 +30,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "https://stream-ashy-theta.vercel.app", // Allow only this origin
+    origin: "https://stream-ashy-theta.vercel.app/", // Allow only this origin
     credentials: true, // Allow cookies and credentials
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allowed methods
     allowedHeaders: [
