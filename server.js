@@ -33,9 +33,15 @@ app.use(
     origin: "https://stream-ashy-theta.vercel.app", // Allow only this origin
     credentials: true, // Allow cookies and credentials
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allowed methods
-    allowedHeaders: ["Content-Type", "Authorization", "auth-token"], // Allowed headers
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "auth-token",
+      "headers", // Allow 'headers' in the preflight response
+    ],
   })
 );
+
 
 
 // Using routers
