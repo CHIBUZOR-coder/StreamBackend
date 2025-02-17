@@ -8,7 +8,7 @@ dotenv.config();
 const prisma = new PrismaClient();
 const FLW_SECRET_KEY = process.env.FLW_SECRETE_KEY;
 
-console.log(FLW_SECRET_KEY);
+// console.log(FLW_SECRET_KEY);
 
 
 
@@ -101,7 +101,7 @@ exports.initiateSubscription = async (req, res) => {
     console.log("User found:", user);
 
     if (!user.email || !user.name || !user.phone) {
-      console.warn("⚠️ User data is incomplete:", user);
+      console.warn(" User data is incomplete:", user);
       return res.status(400).json({
         success: false,
         message: "User data is incomplete or missing required fields",
@@ -109,7 +109,7 @@ exports.initiateSubscription = async (req, res) => {
     }
 
     const orderId = uuidv4();
-    console.log("📌 Generated Order ID:", orderId);
+    console.log(" Generated Order ID:", orderId);
 
     const subscriptionData = {
       tx_ref: orderId,
@@ -136,9 +136,9 @@ exports.initiateSubscription = async (req, res) => {
       body: JSON.stringify(subscriptionData),
     });
 
-    console.log("⏳ Awaiting response from Flutterwave...");
+    console.log(" Awaiting response from Flutterwave...");
     const data = await response.json();
-    console.log("📩 Flutterwave response:", data);
+    console.log(" Flutterwave response:", data);
 
     if (data.status === "success") {
       return res.status(200).json({
@@ -148,14 +148,14 @@ exports.initiateSubscription = async (req, res) => {
         orderId,
       });
     } else {
-      console.error("❌ Flutterwave API error:", data);
+      console.error(" Flutterwave API error:", data);
       return res.status(500).json({
         success: false,
         message: data.message || "Subscription initiation failed",
       });
     }
   } catch (error) {
-    console.error("🔥 Subscription error:", error);
+    console.error(" Subscription error:", error);
     return res.status(500).json({
       success: false,
       message: "Subscription initiation failed due to an internal error",
