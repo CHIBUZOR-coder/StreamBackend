@@ -18,30 +18,12 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // For URL-encod
 // Cookie parser  middleware
 app.use(cookieParser());
 
-// CORS Configuration
-// app.use(
-//   cors({
-//     origin: "https://stream-ashy-theta.vercel.app/", // Allow requests from this origin
-//     credentials: true, // Allow cookies and credentials
-//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allowed HTTP methods
-//     allowedHeaders: ["Content-Type", "Authorization", "auth-token"], // Include all custom headers used
-//   })
-// );
-
-// app.use(
-//   cors({
-//     origin: "https://stream-m1p80bn1b-zoes-projects-c78d3faa.vercel.app", 
-//     credentials: true, // ✅ Allow cookies
-//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "auth-token"], 
-//   })
-// );
 
 app.use(
   cors({
     origin: "https://stream-m1p80bn1b-zoes-projects-c78d3faa.vercel.app",
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "auth-token"],
+    allowedHeaders: ["Content-Type", "Authorization", "auth_token"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   })
 );
