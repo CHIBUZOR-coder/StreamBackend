@@ -78,7 +78,7 @@ exports.initiateSubscription = async (req, res) => {
     console.log(" Checking if FLW_SECRET_KEY exists...");
 
     const redirectUrl =
-      process.env.REDIRECT_URL || "http://localhost:5173/stream/thankyou";
+      process.env.REDIRECT_URL || "http://localhost:5173/thankyou";
 
     console.log(` Searching for user with email: ${email}`);
     const user = await prisma.user.findUnique({
