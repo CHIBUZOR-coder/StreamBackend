@@ -43,7 +43,7 @@ app.use(cookieParser());
 // );
 app.use(
   cors({
-    origin: "https://j24ecomm-zoes-projects-c78d3faa.vercel.app",
+    origin: "https://stream-ashy-theta.vercel.app/",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "auth-token"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
