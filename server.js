@@ -18,14 +18,16 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // For URL-encod
 // Cookie parser  middleware
 app.use(cookieParser());
 
+
 app.use(
   cors({
     origin: "https://stream-ashy-theta.vercel.app",
     credentials: true,
-    allowedHeaders: ["Content-Type"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"], // Ensure it allows Authorization header if used
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Include OPTIONS for preflight requests
   })
 );
+
 
 // Using routers
 app.use("/", categoryRoute);
