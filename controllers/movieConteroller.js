@@ -26,7 +26,6 @@ exports.createMovies = async (req, res) => {
       !name ||
       !time ||
       !year ||
-      !rating ||
       !language ||
       !description ||
       !price ||
