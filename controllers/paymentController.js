@@ -75,7 +75,7 @@ exports.initiateSubscription = async (req, res) => {
       });
     }
 
-    console.log(" Checking if FLW_SECRET_KEY exists...");
+    console.log(" Checking if FLW_SECRET_KEY exists....");
 
     const redirectUrl =
       process.env.REDIRECT_URL ||
