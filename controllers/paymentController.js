@@ -10,9 +10,6 @@ const FLW_SECRET_KEY = process.env.FLW_SECRETE_KEY;
 
 // console.log(FLW_SECRET_KEY);
 
-
-
-
 // Replace with your actual secret key
 
 const createPaymentPlan = async () => {
@@ -77,9 +74,7 @@ exports.initiateSubscription = async (req, res) => {
 
     console.log(" Checking if FLW_SECRET_KEY exists....");
 
-    const redirectUrl =
-      process.env.REDIRECT_URL ||
-      "https://stream-ashy-theta.vercel.app/thankyou";
+    // const redirectUrl = "https://stream-ashy-theta.vercel.app/thankyou";
 
     console.log(` Searching for user with email: ${email}`);
     const user = await prisma.user.findUnique({
@@ -116,7 +111,7 @@ exports.initiateSubscription = async (req, res) => {
       amount: 300,
       currency: "USD",
       payment_type: "subscription",
-      redirect_url: redirectUrl,
+      redirect_url: "https://stream-ashy-theta.vercel.app/thankyou",
       customer: {
         email: user.email,
         name: user.name,
@@ -201,11 +196,8 @@ exports.verifyPaymentt = async (req, res) => {
     });
   }
 
+  console.log("key", FLW_SECRET_KEY);
 
-  console.log("key",FLW_SECRET_KEY);
-  
-
-  
   try {
     const response = await fetch(
       `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
@@ -297,19 +289,6 @@ exports.verifyPaymentt = async (req, res) => {
       .json({ success: false, message: "Payment verification failed" });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const getUserSubscriptions = async (email) => {
   try {
