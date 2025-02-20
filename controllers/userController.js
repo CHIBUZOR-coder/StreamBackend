@@ -224,17 +224,17 @@ exports.loginuser = async (req, res) => {
     // Fetch user from database
     const user = await prisma.user.findUnique({
       where: { email: email },
-      select: {
-        id: true,
-        role: true,
-        email: true,
-        name: true,
-        phone: true,
-        image: true,
-        password: true,
-        verified: true,
-        subscription: true,
-      },
+      // select: {
+      //   id: true,
+      //   role: true,
+      //   email: true,
+      //   name: true,
+      //   phone: true,
+      //   image: true,
+      //   password: true,
+      //   verified: true,
+      //   subscription: true,
+      // },
     });
 
     if (!user) {
