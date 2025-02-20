@@ -275,9 +275,9 @@ exports.loginuser = async (req, res) => {
       const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
       sendVerificationEmail(email, verifyEmailToken, verificationLink);
 
-      return res.status(200).json({
+      return res.status(400).json({
         success: true,
-        message: "A link to verify your accout has been sent to your emmail",
+        message: "You have not verified your email. A link to verify your accout has been sent to your emmail",
       });
     }
 
