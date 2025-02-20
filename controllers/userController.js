@@ -238,6 +238,8 @@ exports.loginuser = async (req, res) => {
       },
     });
 
+    console.log("user", user);
+
     if (!user) {
       return res
         .status(400)
