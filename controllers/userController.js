@@ -227,18 +227,18 @@ exports.loginuser = async (req, res) => {
 
       select: {
         status: true,
-        id: true,
-        role: true,
-        email: true,
-        name: true,
-        phone: true,
-        image: true,
-        password: true,
-        subscription: true,
+        // id: true,
+        // role: true,
+        // email: true,
+        // name: true,
+        // phone: true,
+        // image: true,
+        // password: true,
+        // subscription: true,
       },
     });
 
-    console.log("user", user);
+    console.log("user", user.status);
 
     if (!user) {
       return res
