@@ -19,6 +19,9 @@ exports.createUser = async (req, res) => {
     });
   }
 
+  console.log("body:",req.body);
+  
+
   try {
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -120,8 +123,6 @@ exports.createUser = async (req, res) => {
 
 // Asynchronous function to send email
 const sendVerificationEmail = async (email, token, verificationLink) => {
- 
-
   const mailOptions = {
     from: process.env.EMAIL_HOST_USER,
     to: email,
@@ -212,6 +213,7 @@ exports.verifyEmail = async (req, res) => {
 
 exports.loginuser = async (req, res) => {
   const { email, password } = req.body;
+  const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
 
   try {
     console.log("req body:", req.body);
@@ -231,6 +233,7 @@ exports.loginuser = async (req, res) => {
         phone: true,
         image: true,
         password: true,
+        isVerified: true,
         subscription: true, // Include password for validation
       },
     });
@@ -246,6 +249,20 @@ exports.loginuser = async (req, res) => {
         .status(400)
         .json({ success: false, message: "password is incorrect" });
     }
+
+    const isverified = user.isverified;
+    if (isverified === false) {
+      const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+        expiresIn: "1h",
+      });
+
+      sendVerificationEmail(email, verifyEmailToken, verificationLink);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { isVerified: true },
+      });
+    }
+
     const token = generateToken(user);
     if (!token)
       return res.status(400).json({ success: false, message: "Invalid token" });
