@@ -235,6 +235,7 @@ exports.loginuser = async (req, res) => {
       //   verified: true,
       //   subscription: true,
       // },
+      
     });
 
     if (!user) {
@@ -256,6 +257,8 @@ exports.loginuser = async (req, res) => {
 
     // Handle unverified users gfg
     if (!user.verified) {
+      console.log("Unverified user");
+      
       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
         expiresIn: "1h",
       });
