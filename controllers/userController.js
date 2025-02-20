@@ -56,12 +56,12 @@ exports.createUser = async (req, res) => {
     }
 
     // Validate file upload
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Image file is required.",
-      });
-    }
+    // if (!req.file) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Image file is required.",
+    //   });
+    // }
 
     // Upload image to Cloudinary
     const imageUrl = await uploadToCloudinary(req.file.buffer, "image");
@@ -72,11 +72,11 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    // Hash password
+    // Hash the password
     const salt = await bcrypt.genSalt(11);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate email verification token
+    // Generate email verification token 
     const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
       expiresIn: "1h",
     });
