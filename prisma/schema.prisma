@@ -20,12 +20,12 @@ model User {
   image            String?
   name             String         @unique
   phone            String?
-  resetToken       String?
+  resetToken       Boolean        @default(false)
   resetTokenExpiry DateTime?
   role             Role           @default(USER)
   favouriteCart    FavouriteCart?
   receipt          Receipt[]
-  status           Boolean        @default(false)
+
   subscription     Subscription   @default(UNSUBSCRIBED)
   movieReviews     MovieReviews[]
 }

@@ -226,7 +226,7 @@ exports.loginuser = async (req, res) => {
       where: { email },
 
       select: {
-        status: true,
+        resetToken: true,
         id: true,
         role: true,
         email: true,
@@ -258,7 +258,7 @@ exports.loginuser = async (req, res) => {
     let verifyEmailToken = "";
 
     // Handle unverified users gfg
-    if (user.status !== true) {
+    if (user.resetToken !== true) {
       console.log("Unverified user");
 
       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
@@ -270,7 +270,7 @@ exports.loginuser = async (req, res) => {
 
       await prisma.user.update({
         where: { id: user.id },
-        data: { status: "VERIFIED" },
+        data: { resetToken: true },
       });
     }
 
