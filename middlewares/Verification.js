@@ -72,4 +72,35 @@ const verifyAdmin = (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken, verifyAdmin, verifySubscription };
+
+
+
+const verifyEmailToken = (req, res, next) => {
+  const token = req.query.token; // Extract token from query parameters
+
+  if (!token) {
+    return res
+      .status(400)
+      .json({ success: false, message: "No token provided." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.EMAIL_SECRET);
+    req.email = decoded.email; // Attach email to the request object
+    next(); // Proceed to the next middleware/controller
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid or expired token." });
+  }
+};
+
+module.exports = verifyEmailToken;
+
+
+module.exports = {
+  verifyToken,
+  verifyAdmin,
+  verifySubscription,
+  verifyEmailToken,
+};

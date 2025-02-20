@@ -18,6 +18,7 @@ router.post(
 );
 
 router.post("/login", userControllers.loginuser);
+router.post("/verifyEmail", userControllers.verifyEmail);
 
 router.post("/clear-cookies", (req, res) => {
   // Clear the cookie by specifying the cookie name and other options
