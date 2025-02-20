@@ -25,7 +25,7 @@ model User {
   role             Role           @default(USER)
   favouriteCart    FavouriteCart?
   receipt          Receipt[]
-  isVerified       Boolean        @default(false)
+  is_Verified       Boolean        @default(false)
   subscription     Subscription   @default(UNSUBSCRIBED)
   movieReviews     MovieReviews[]
 }
