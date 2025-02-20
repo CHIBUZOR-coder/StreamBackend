@@ -190,7 +190,7 @@ exports.verifyEmail = async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY); // Use your JWT secret key
+    const decoded = jwt.verify(token, process.env.EMAIL_SECRET); // Use your JWT secret key
 
     if (!decoded) {
       return res.status(401).json({ success: false, message: "Invalid token" });
