@@ -213,16 +213,16 @@ exports.verifyEmail = async (req, res) => {
 
 exports.loginuser = async (req, res) => {
   const { email, password } = req.body;
-  const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
 
   try {
     console.log("req body:", req.body);
     if (!email || !password) {
-      res
+      return res
         .status(400)
-        .json({ success: false, message: "All feilds must not be empty" });
+        .json({ success: false, message: "All fields must not be empty" });
     }
-    // const user = await prisma.user.findUnique({ where: { email:email } });
+
+    // Fetch user from database
     const user = await prisma.user.findUnique({
       where: { email: email },
       select: {
@@ -234,57 +234,66 @@ exports.loginuser = async (req, res) => {
         image: true,
         password: true,
         isVerified: true,
-        subscription: true, // Include password for validation
+        subscription: true,
       },
     });
 
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: "user does not exist" });
+        .json({ success: false, message: "User does not exist" });
     }
+
+    // Validate password
     const validatePassword = await bcrypt.compare(password, user.password);
     if (!validatePassword) {
       return res
         .status(400)
-        .json({ success: false, message: "password is incorrect" });
+        .json({ success: false, message: "Password is incorrect" });
     }
 
-    const isverified = user.isverified;
-    if (isverified === false) {
-      const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+    // Initialize verification token
+    let verifyEmailToken = "";
+
+    // Handle unverified users
+    if (!user.isVerified) {
+      verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
         expiresIn: "1h",
       });
 
+      const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
       sendVerificationEmail(email, verifyEmailToken, verificationLink);
+
       await prisma.user.update({
         where: { id: user.id },
         data: { isVerified: true },
       });
     }
 
+    // Generate authentication token
     const token = generateToken(user);
-    if (!token)
+    if (!token) {
       return res.status(400).json({ success: false, message: "Invalid token" });
+    }
 
+    // Clear previous authentication cookie
     res.clearCookie("auth_token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      path: "/", // Make sure the path matches where the cookie was originally set
+      path: "/",
     });
 
-    const isProduction = process.env.NODE_ENV === "production";
-
+    // Set new authentication cookie
     res.cookie("auth_token", token, {
-      httpOnly: true, // Ensures the cookie cannot be accessed via JavaScript
-      secure: process.env.NODE_ENV === "production", // Set to true only in production (requires HTTPS)
-      expires: new Date(Date.now() + 7200000), // 2 hours expiration for the cookie
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // SameSite=None for cross-origin requests in production
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 7200000), // 2 hours expiration
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
 
-    res.status(200);
-    res.json({
+    // Send response
+    res.status(200).json({
       success: true,
       message: "You are now logged in",
       role: user.role,
@@ -299,8 +308,100 @@ exports.loginuser = async (req, res) => {
     });
   } catch (error) {
     console.error({ message: error.message });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+// exports.loginuser = async (req, res) => {
+//   const { email, password } = req.body;
+//   const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
+
+//   try {
+//     console.log("req body:", req.body);
+//     if (!email || !password) {
+//       res
+//         .status(400)
+//         .json({ success: false, message: "All feilds must not be empty" });
+//     }
+//     // const user = await prisma.user.findUnique({ where: { email:email } });
+//     const user = await prisma.user.findUnique({
+//       where: { email: email },
+//       select: {
+//         id: true,
+//         role: true,
+//         email: true,
+//         name: true,
+//         phone: true,
+//         image: true,
+//         password: true,
+//         isVerified: true,
+//         subscription: true, // Include password for validation
+//       },
+//     });
+
+//     if (!user) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "user does not exist" });
+//     }
+//     const validatePassword = await bcrypt.compare(password, user.password);
+//     if (!validatePassword) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "password is incorrect" });
+//     }
+
+//     const isverified = user.isverified;
+//     if (isverified === false) {
+//       const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+//         expiresIn: "1h",
+//       });
+
+//       sendVerificationEmail(email, verifyEmailToken, verificationLink);
+//       await prisma.user.update({
+//         where: { id: user.id },
+//         data: { isVerified: true },
+//       });
+//     }
+
+//     const token = generateToken(user);
+//     if (!token)
+//       return res.status(400).json({ success: false, message: "Invalid token" });
+
+//     res.clearCookie("auth_token", {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+//       path: "/", // Make sure the path matches where the cookie was originally set
+//     });
+
+//     const isProduction = process.env.NODE_ENV === "production";
+
+//     res.cookie("auth_token", token, {
+//       httpOnly: true, // Ensures the cookie cannot be accessed via JavaScript
+//       secure: process.env.NODE_ENV === "production", // Set to true only in production (requires HTTPS)
+//       expires: new Date(Date.now() + 7200000), // 2 hours expiration for the cookie
+//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // SameSite=None for cross-origin requests in production
+//     });
+
+//     res.status(200);
+//     res.json({
+//       success: true,
+//       message: "You are now logged in",
+//       role: user.role,
+//       userInfo: {
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         image: user.image,
+//         id: user.id,
+//         subscription: user.subscription,
+//       },
+//     });
+//   } catch (error) {
+//     console.error({ message: error.message });
+//   }
+// };
 
 exports.getUser = async (req, res) => {
   try {
