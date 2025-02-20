@@ -9,7 +9,6 @@ const cloudinary = require("../config/cloudinary");
 const transporter = require("../config/email");
 const jwt = require("jsonwebtoken");
 
-
 //render is not recognising my prisma migrations. so i use an old field resetToken which is either true of false checking if user has been verified by email
 exports.createUser = async (req, res) => {
   const { email, phone, name, password, confirmpassword } = req.body;
@@ -202,8 +201,8 @@ exports.verifyEmail = async (req, res) => {
 
     // Update user in database (set resetToken to true or handle verification logic)
     await prisma.user.update({
-      where: { email },
-      data: { resetToken: "true" },
+      where: { id: user.id },
+      data: { status: true },
     });
 
     // If verification is successful, send a success response
@@ -248,8 +247,6 @@ exports.loginuser = async (req, res) => {
       },
     });
 
-
-
     if (!user) {
       return res
         .status(400)
@@ -278,9 +275,9 @@ exports.loginuser = async (req, res) => {
       const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
       sendVerificationEmail(email, verifyEmailToken, verificationLink);
 
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { status: true },
+      return res.status(200).json({
+        success: true,
+        message: "A link to verify your accout has been sent to your emmail",
       });
     }
 
