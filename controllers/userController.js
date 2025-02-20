@@ -258,7 +258,7 @@ exports.loginuser = async (req, res) => {
     let verifyEmailToken = "";
 
     // Handle unverified users gfg
-    if (user.resetToken !== true) {
+    if (user.resetToken !== "true") {
       console.log("Unverified user");
 
       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
