@@ -223,19 +223,19 @@ exports.loginuser = async (req, res) => {
 
     // Fetch user from database
     const user = await prisma.user.findUnique({
-      where: { email: email },
-      // select: {
-      //   id: true,
-      //   role: true,
-      //   email: true,
-      //   name: true,
-      //   phone: true,
-      //   image: true,
-      //   password: true,
-      //   verified: true,
-      //   subscription: true,
-      // },
-      
+      where: { email },
+
+      select: {
+        verified: true,
+        id: true,
+        role: true,
+        email: true,
+        name: true,
+        phone: true,
+        image: true,
+        password: true,
+        subscription: true,
+      },
     });
 
     if (!user) {
@@ -256,9 +256,9 @@ exports.loginuser = async (req, res) => {
     let verifyEmailToken = "";
 
     // Handle unverified users gfg
-    if (!user.verified) {
+    if (user.verified !== "VERIFIED") {
       console.log("Unverified user");
-      
+
       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
         expiresIn: "1h",
       });
@@ -268,7 +268,7 @@ exports.loginuser = async (req, res) => {
 
       await prisma.user.update({
         where: { id: user.id },
-        data: { verified: VERIFIED },
+        data: { verified: "VERIFIED" },
       });
     }
 
