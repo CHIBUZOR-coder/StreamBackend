@@ -20,14 +20,14 @@ model User {
   image            String?
   name             String         @unique
   phone            String?
-  resetToken       Boolean        @default(false)
+  resetToken       String         @default("false")
   resetTokenExpiry DateTime?
   role             Role           @default(USER)
   favouriteCart    FavouriteCart?
   receipt          Receipt[]
 
-  subscription     Subscription   @default(UNSUBSCRIBED)
-  movieReviews     MovieReviews[]
+  subscription Subscription   @default(UNSUBSCRIBED)
+  movieReviews MovieReviews[]
 }
 
 model Receipt {
