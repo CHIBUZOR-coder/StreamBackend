@@ -227,14 +227,14 @@ exports.loginuser = async (req, res) => {
 
       select: {
         status: true,
-        // id: true,
-        // role: true,
-        // email: true,
-        // name: true,
-        // phone: true,
-        // image: true,
-        // password: true,
-        // subscription: true,
+        id: true,
+        role: true,
+        email: true,
+        name: true,
+        phone: true,
+        image: true,
+        password: true,
+        subscription: true,
       },
     });
 
@@ -258,7 +258,7 @@ exports.loginuser = async (req, res) => {
     let verifyEmailToken = "";
 
     // Handle unverified users gfg
-    if (user.status !== "VERIFIED") {
+    if (user.status !== true) {
       console.log("Unverified user");
 
       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {

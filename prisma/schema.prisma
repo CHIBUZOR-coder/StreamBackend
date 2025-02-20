@@ -25,7 +25,7 @@ model User {
   role             Role           @default(USER)
   favouriteCart    FavouriteCart?
   receipt          Receipt[]
-  status           Verification   @default(UNVERIFIED)
+  status           Boolean        @default(false)
   subscription     Subscription   @default(UNSUBSCRIBED)
   movieReviews     MovieReviews[]
 }
@@ -64,10 +64,10 @@ enum Status {
   CANCELLED
 }
 
-enum Verification {
-  VERIFIED
-  UNVERIFIED
-}
+// enum Verification {
+//   VERIFIED
+//   UNVERIFIED
+// }
 
 enum Subscription {
   SUBSCRIBED
