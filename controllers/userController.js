@@ -180,10 +180,10 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
 };
 
 exports.verifyEmail = async (req, res) => {
-  const { token, email } = req.body;
+  const { token } = req.body;
   console.log("req.body:", req.body);
 
-  if (!token || !email) {
+  if (!token) {
     return res.status(400).json({
       success: false,
       message: "Token and email are required",
