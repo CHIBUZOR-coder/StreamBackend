@@ -199,6 +199,16 @@ exports.verifyEmail = async (req, res) => {
     // Extract email
     const { email } = decoded;
 
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Unable to find user" });
+    }
+
     // Update user in database (set resetToken to true or handle verification logic)
     await prisma.user.update({
       where: { id: user.id },
@@ -277,7 +287,8 @@ exports.loginuser = async (req, res) => {
 
       return res.status(400).json({
         success: true,
-        message: "You have not verified your email. A link to verify your accout has been sent to your emmail",
+        message:
+          "You have not verified your email. A link to verify your accout has been sent to your emmail",
       });
     }
 
