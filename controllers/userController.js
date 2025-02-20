@@ -19,8 +19,7 @@ exports.createUser = async (req, res) => {
     });
   }
 
-  console.log("body:",req.body);
-  
+  console.log("body:", req.body);
 
   try {
     // Validate email
@@ -233,7 +232,7 @@ exports.loginuser = async (req, res) => {
         phone: true,
         image: true,
         password: true,
-        Verifiedy: true,
+        verified: true,
         subscription: true,
       },
     });
@@ -255,8 +254,8 @@ exports.loginuser = async (req, res) => {
     // Initialize verification token
     let verifyEmailToken = "";
 
-    // Handle unverified users
-    if (!user.isVerified) {
+    // Handle unverified users gfg
+    if (!user.verified) {
       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
         expiresIn: "1h",
       });
@@ -266,7 +265,7 @@ exports.loginuser = async (req, res) => {
 
       await prisma.user.update({
         where: { id: user.id },
-        data: { isVerified: true },
+        data: { verified: VERIFIED },
       });
     }
 
