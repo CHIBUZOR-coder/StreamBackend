@@ -20,7 +20,7 @@ model User {
   image            String?
   name             String         @unique
   phone            String?
-  resetToken       String         @default("false")
+  status      Boolean        @default(false)
   resetTokenExpiry DateTime?
   role             Role           @default(USER)
   favouriteCart    FavouriteCart?
