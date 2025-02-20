@@ -233,7 +233,7 @@ exports.loginuser = async (req, res) => {
         phone: true,
         image: true,
         password: true,
-        is_Verified: true,
+        Verifiedy: true,
         subscription: true,
       },
     });
