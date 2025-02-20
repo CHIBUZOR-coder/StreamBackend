@@ -9,7 +9,6 @@ const cloudinary = require("../config/cloudinary");
 const transporter = require("../config/email");
 const jwt = require("jsonwebtoken");
 
-
 exports.createUser = async (req, res) => {
   const { email, phone, name, password, confirmpassword } = req.body;
 
@@ -87,7 +86,6 @@ exports.createUser = async (req, res) => {
         password: hashedPassword,
         image: imageUrl,
         phone,
-        isVerified: false, // User is not verified yet
       },
     });
 
@@ -204,7 +202,6 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
     throw new Error("Upload failed");
   }
 };
-
 
 exports.verifyEmail = async (req, res) => {
   const { token, email } = req.body;

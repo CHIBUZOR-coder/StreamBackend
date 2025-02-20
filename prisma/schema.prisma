@@ -25,6 +25,7 @@ model User {
   role             Role           @default(USER)
   favouriteCart    FavouriteCart?
   receipt          Receipt[]
+  isVerified       Boolean        @default(false)
   subscription     Subscription   @default(UNSUBSCRIBED)
   movieReviews     MovieReviews[]
 }
@@ -95,11 +96,11 @@ model Movies {
   year                String
   approxiY            String
   rating              Int?
-  watchCount  Int    @default(0)
-  approxiR    String
-  language    String
-  description String
-  price       Float
+  watchCount          Int                   @default(0)
+  approxiR            String
+  language            String
+  description         String
+  price               Float
 
   trailer           String
   casts             CastsOnMovies[]
