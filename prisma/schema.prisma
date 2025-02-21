@@ -28,6 +28,7 @@ model User {
   subscriptionData String         @default("")
   subscription     Subscription   @default(UNSUBSCRIBED)
   movieReviews     MovieReviews[]
+  resetToken       String?
 }
 
 model Receipt {
