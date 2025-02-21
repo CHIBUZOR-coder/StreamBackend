@@ -71,7 +71,7 @@ function ResetPasswordToken(user) {
 
     // Token options
     const options = {
-      expiresIn: "3m", // Token validity duration (e.g., 2 hours)
+      expiresIn: "20m", // Token validity duration (e.g., 2 hours)
     };
 
     // Generate and return the token
