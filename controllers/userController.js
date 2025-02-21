@@ -55,28 +55,26 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    // Validate file upload
-    // if (!req.file) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Image file is required.",
-    //   });
-    // }
+    let imageUrl;
 
-    // Upload image to Cloudinary
-    const imageUrl = await uploadToCloudinary(req.file.buffer, "image");
-    if (!imageUrl) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to upload image.",
-      });
+    // Validate file upload
+    if (req.file) {
+      await uploadToCloudinary(req.file.buffer, "image");
+      if (!imageUrl) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload image.",
+        });
+      }
     }
 
-    // Hash the password
+    // Upload image to Cloudinary
+
+    // Hash password
     const salt = await bcrypt.genSalt(11);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate email verification token 
+    // Generate email verification token
     const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
       expiresIn: "1h",
     });
@@ -87,7 +85,7 @@ exports.createUser = async (req, res) => {
         email,
         name,
         password: hashedPassword,
-        image: imageUrl,
+        image: imageUrl|| null,
         phone,
       },
     });
