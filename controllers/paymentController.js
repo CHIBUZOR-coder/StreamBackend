@@ -253,6 +253,7 @@ exports.verifyPaymentt = async (req, res) => {
           amount: data.data.amount,
           transactionId: transaction_id,
           status: "COMPLETED",
+          
         },
         include: {
           user: {

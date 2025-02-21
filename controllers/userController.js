@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 const cloudinary = require("../config/cloudinary");
 const transporter = require("../config/email");
 const jwt = require("jsonwebtoken");
+const cron = require("node-cron");
 
 //render is not recognising my prisma migrations. so i use an old field resetToken which is either true of false checking if user has been verified by email
 exports.createUser = async (req, res) => {
@@ -85,7 +86,7 @@ exports.createUser = async (req, res) => {
         email,
         name,
         password: hashedPassword,
-        image: imageUrl|| null,
+        image: imageUrl || null,
         phone,
       },
     });
@@ -996,6 +997,65 @@ exports.subscriptionDetails = async (req, res) => {
     });
   }
 };
+async function scheduleUnsubscribeTimersForAllUsers() {
+  try {
+    // Find all users with a "Subscribed" status
+    const users = await prisma.user.findMany({
+      where: { subscription: "Subscribed" },
+      include: {
+        receipt: {
+          select: {
+            created_at: true,
+          },
+        },
+      },
+    });
+
+    const now = new Date();
+    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
+    users.forEach((user) => {
+      // Ensure you have the correct receipt date. If receipt is an array, adjust accordingly.
+      const subscriptionStart = new Date(user.receipt.created_at);
+      const timeElapsed = now - subscriptionStart;
+      const timeLeft = thirtyDaysInMs - timeElapsed;
+
+      if (timeLeft <= 0) {
+        // If the timer has already expired, unsubscribe immediately.
+        (async () => {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { subscription: "Unsubscribed" },
+            });
+            console.log(`User ${user.id} unsubscribed immediately.`);
+          } catch (err) {
+            console.error(`Error unsubscribing user ${user.id}:`, err);
+          }
+        })();
+      } else {
+        // Schedule a timer for the remaining time until unsubscription
+        setTimeout(async () => {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { subscription: "Unsubscribed" },
+            });
+            console.log(`User ${user.id} unsubscribed after timer.`);
+          } catch (error) {
+            console.error(`Error unsubscribing user ${user.id}:`, error);
+          }
+        }, timeLeft);
+        console.log(
+          `Scheduled unsubscribe timer for user ${user.id} in ${timeLeft} ms.`
+        );
+      }
+    });
+  } catch (error) {
+    console.error("Error scheduling unsubscribe timers:", error);
+  }
+}
 
 
-
+// Run this function when your server starts
+scheduleUnsubscribeTimersForAllUsers();
