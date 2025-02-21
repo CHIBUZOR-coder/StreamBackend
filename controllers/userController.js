@@ -997,6 +997,10 @@ exports.subscriptionDetails = async (req, res) => {
     });
   }
 };
+
+
+
+
 async function scheduleUnsubscribeTimersForAllUsers() {
   try {
     // Find all users with a "Subscribed" status
@@ -1015,7 +1019,8 @@ async function scheduleUnsubscribeTimersForAllUsers() {
     const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
     users.forEach((user) => {
-      // Ensure you have the correct receipt date. If receipt is an array, adjust accordingly.
+      // Ensure you have the correct receipt date.
+      // If receipt is an array, adjust accordingly (e.g., user.receipt[0].created_at).
       const subscriptionStart = new Date(user.receipt.created_at);
       const timeElapsed = now - subscriptionStart;
       const timeLeft = thirtyDaysInMs - timeElapsed;
@@ -1056,6 +1061,12 @@ async function scheduleUnsubscribeTimersForAllUsers() {
   }
 }
 
+// Use Node-Cron to run the scheduling function at a specific interval.
+// In this example, the cron job runs every hour.
+cron.schedule("0 * * * *", () => {
+  console.log("Running scheduled unsubscribe timers check...");
+  scheduleUnsubscribeTimersForAllUsers();
+});
 
-// Run this function when your server starts
-scheduleUnsubscribeTimersForAllUsers();
+
+
