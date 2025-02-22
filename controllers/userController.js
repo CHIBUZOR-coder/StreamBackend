@@ -241,7 +241,7 @@ exports.loginuser = async (req, res) => {
 
     // Fetch user from database
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email },
 
       select: {
         status: true,
@@ -256,7 +256,7 @@ exports.loginuser = async (req, res) => {
       },
     });
 
-    if (!user) {
+    if (!user || !user.id) {
       return res
         .status(400)
         .json({ success: false, message: "User does not exist" });
@@ -998,9 +998,6 @@ exports.subscriptionDetails = async (req, res) => {
   }
 };
 
-
-
-
 async function scheduleUnsubscribeTimersForAllUsers() {
   try {
     // Find all users with a "Subscribed" status
@@ -1067,6 +1064,3 @@ cron.schedule("0 * * * *", () => {
   console.log("Running scheduled unsubscribe timers check...");
   scheduleUnsubscribeTimersForAllUsers();
 });
-
-
-
