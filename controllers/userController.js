@@ -241,7 +241,7 @@ exports.loginuser = async (req, res) => {
 
     // Fetch user from database
     const user = await prisma.user.findUnique({
-      where: { email: email },
+      where: { email },
 
       select: {
         status: true,
@@ -256,7 +256,7 @@ exports.loginuser = async (req, res) => {
       },
     });
 
-    if (!user || !user.id) {
+    if (!user) {
       return res
         .status(400)
         .json({ success: false, message: "User does not exist" });
