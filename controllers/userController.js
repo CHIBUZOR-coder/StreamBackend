@@ -228,21 +228,134 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
+// exports.loginuser = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     console.log("req body:", req.body);
+//     if (!email || !password) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "All fields must not be empty" });
+//     }
+
+//     // Fetch user from database
+//     const user = await prisma.user.findUnique({
+//       where: { email },
+
+//       select: {
+//         status: true,
+//         id: true,
+//         role: true,
+//         email: true,
+//         name: true,
+//         phone: true,
+//         image: true,
+//         password: true,
+//         subscription: true,
+//       },
+//     });
+
+//     if (!user) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "User does not exist" });
+//     }
+
+//     // Validate password
+//     const validatePassword = await bcrypt.compare(password, user.password);
+//     if (!validatePassword) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Password is incorrect" });
+//     }
+
+//     // Initialize verification token
+//     let verifyEmailToken = "";
+
+//     // Handle unverified users gfg
+//     if (user.status !== true) {
+//       console.log("Unverified user");
+
+//       verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+//         expiresIn: "1h",
+//       });
+
+//       const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
+//       sendVerificationEmail(email, verifyEmailToken, verificationLink);
+
+//       return res.status(400).json({
+//         success: true,
+//         message:
+//           "You have not verified your email. A link to verify your accout has been sent to your emmail",
+//       });
+//     }
+
+//     // Generate authentication token
+//     const token = generateToken(user);
+//     if (!token) {
+//       return res.status(400).json({ success: false, message: "Invalid token" });
+//     }
+
+//     // Clear previous authentication cookie
+//     res.clearCookie("auth_token", {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+//       path: "/",
+//     });
+
+//     // Set new authentication cookie
+//     res.cookie("auth_token", token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       expires: new Date(Date.now() + 7200000), // 2 hours expiration
+//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+//     });
+
+//     // Send response
+//     res.status(200).json({
+//       success: true,
+//       message: "You are now logged in",
+//       role: user.role,
+//       userInfo: {
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         image: user.image,
+//         id: user.id,
+//         subscription: user.subscription,
+//       },
+//     });
+//   } catch (error) {
+//     console.error({ message: error.message });
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
+
+
+const bcrypt = require("bcryptjs"); // Ensure bcrypt is imported
+const jwt = require("jsonwebtoken"); // Ensure jwt is imported
+const prisma = require("../prisma"); // Import Prisma if it's not defined
+const sendVerificationEmail = require("../utils/sendVerificationEmail"); // Ensure it's imported
+const generateToken = require("../utils/generateToken"); // Ensure it's imported
+
 exports.loginuser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log("req body:", req.body);
+    console.log("Request Body:", req.body);
+
     if (!email || !password) {
       return res
         .status(400)
-        .json({ success: false, message: "All fields must not be empty" });
+        .json({ success: false, message: "All fields are required" });
     }
 
     // Fetch user from database
     const user = await prisma.user.findUnique({
       where: { email },
-
       select: {
         status: true,
         id: true,
@@ -257,44 +370,46 @@ exports.loginuser = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User does not exist" });
+      return res.status(404).json({
+        success: false,
+        message: "User does not exist",
+      });
     }
 
     // Validate password
-    const validatePassword = await bcrypt.compare(password, user.password);
-    if (!validatePassword) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Password is incorrect" });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect password",
+      });
     }
 
-    // Initialize verification token
-    let verifyEmailToken = "";
-
-    // Handle unverified users gfg
+    // Handle unverified users
     if (user.status !== true) {
-      console.log("Unverified user");
+      console.log("Unverified user attempting login");
 
-      verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+      const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
         expiresIn: "1h",
       });
 
       const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
       sendVerificationEmail(email, verifyEmailToken, verificationLink);
 
-      return res.status(400).json({
-        success: true,
+      return res.status(403).json({
+        success: false,
         message:
-          "You have not verified your email. A link to verify your accout has been sent to your emmail",
+          "You have not verified your email. A verification link has been sent to your email.",
       });
     }
 
     // Generate authentication token
     const token = generateToken(user);
     if (!token) {
-      return res.status(400).json({ success: false, message: "Invalid token" });
+      return res.status(500).json({
+        success: false,
+        message: "Token generation failed",
+      });
     }
 
     // Clear previous authentication cookie
@@ -309,14 +424,15 @@ exports.loginuser = async (req, res) => {
     res.cookie("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      expires: new Date(Date.now() + 7200000), // 2 hours expiration
+      expires: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours expiration
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
     });
 
     // Send response
     res.status(200).json({
       success: true,
-      message: "You are now logged in",
+      message: "Login successful",
       role: user.role,
       userInfo: {
         name: user.name,
@@ -328,10 +444,14 @@ exports.loginuser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error({ message: error.message });
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error logging in user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
   }
 };
+
 
 // exports.loginuser = async (req, res) => {
 //   const { email, password } = req.body;
