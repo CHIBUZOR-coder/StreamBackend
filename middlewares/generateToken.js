@@ -9,7 +9,7 @@ function generateToken(user) {
   try {
     const { id, role, email, name, phone, image, password } = user;
     console.log("user", user);
-
+    let expp;
     if (!name) {
       console.log("Name is required");
     }
