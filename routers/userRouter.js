@@ -59,7 +59,34 @@ router.get("/api/protectedRoute", verifyToken, async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "You have accessed a protected route.",
-      userInfo: req.user // Includes subscription details
+      userInfo: user // Includes subscription details
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+
+router.get("/api/protectedRouteII", verifyToken, async (req, res) => {
+  try {
+    // Fetch user from the database using Prisma
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id }, // User ID from decoded token
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "You have accessed a protected route II.",
+      userInfo: req.user, // Includes subscription details
     });
   } catch (error) {
     console.error(error);
