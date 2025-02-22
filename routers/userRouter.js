@@ -43,11 +43,40 @@ router.post("/clear-cookies", (req, res) => {
 //   });
 // });
 
+// router.get("/api/protectedRoute", verifyToken, async (req, res) => {
+//   try {
+//     // Fetch user from the database using Prisma
+//     const user = await prisma.user.findUnique({
+//       where: { id: req.user.id }, // User ID from decoded token
+//     });
+
+//     if (!user) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "You have accessed a protected route.",
+//       userInfo: user, // Includes subscription details
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Server error", error: error.message });
+//   }
+// });
+
+
+const jwt = require("jsonwebtoken");
+
 router.get("/api/protectedRoute", verifyToken, async (req, res) => {
   try {
-    // Fetch user from the database using Prisma
+    // Fetch user from database
     const user = await prisma.user.findUnique({
-      where: { id: req.user.id }, // User ID from decoded token
+      where: { id: req.user.id },
     });
 
     if (!user) {
@@ -56,10 +85,14 @@ router.get("/api/protectedRoute", verifyToken, async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
+    // Decode token to get `exp`
+    const token = req.cookies.token; // Assuming token is in HTTP-only cookies
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
     return res.status(200).json({
       success: true,
       message: "You have accessed a protected route.",
-      userInfo: user, // Includes subscription details
+      userInfo: { ...user, exp: decodedToken.exp }, // Send exp explicitly
     });
   } catch (error) {
     console.error(error);
@@ -68,6 +101,12 @@ router.get("/api/protectedRoute", verifyToken, async (req, res) => {
       .json({ success: false, message: "Server error", error: error.message });
   }
 });
+
+
+
+
+
+
 
 router.get("/subscriptionCheck", verifySubscription, async (req, res) => {
   try {
