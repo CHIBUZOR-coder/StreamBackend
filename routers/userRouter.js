@@ -55,13 +55,13 @@ router.get("/api/protectedRoute", verifyToken, async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    const token = req.cookies.token; // Assuming token is in HTTP-only cookies
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    // const token = req.cookies.token; // Assuming token is in HTTP-only cookies
+    // const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     return res.status(200).json({
       success: true,
       message: "You have accessed a protected route.",
-      userInfo: { ...user, exp: decodedToken.exp }, // Includes subscription details
+      userInfo: user // Includes subscription details
     });
   } catch (error) {
     console.error(error);
