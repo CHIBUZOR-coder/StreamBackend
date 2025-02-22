@@ -297,7 +297,7 @@ exports.verifyEmail = async (req, res) => {
 //       return res.status(400).json({ success: false, message: "Invalid token" });
 //     }
 
-//     // Clear previous authentication cookie
+//     // Clear previous authentication cookie g
 //     res.clearCookie("auth_token", {
 //       httpOnly: true,
 //       secure: process.env.NODE_ENV === "production",
@@ -335,11 +335,6 @@ exports.verifyEmail = async (req, res) => {
 
 
 
-const bcrypt = require("bcryptjs"); // Ensure bcrypt is imported
-const jwt = require("jsonwebtoken"); // Ensure jwt is imported
-const prisma = require("../prisma"); // Import Prisma if it's not defined
-const sendVerificationEmail = require("../utils/sendVerificationEmail"); // Ensure it's imported
-const generateToken = require("../utils/generateToken"); // Ensure it's imported
 
 exports.loginuser = async (req, res) => {
   const { email, password } = req.body;
