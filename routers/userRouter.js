@@ -70,31 +70,31 @@ router.get("/api/protectedRoute", verifyToken, async (req, res) => {
 });
 
 
-// router.get("/api/protectedRouteII", verifyToken, async (req, res) => {
-//   try {
-//     // Fetch user from the database using Prisma
-//     const user = await prisma.user.findUnique({
-//       where: { id: req.user.id }, // User ID from decoded token
-//     });
+router.get("/api/protectedRouteToken", verifyToken, async (req, res) => {
+  try {
+    // Fetch user from the database using Prisma
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id }, // User ID from decoded token
+    });
 
-//     if (!user) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "User not found" });
-//     }
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
 
-//     return res.status(200).json({
-//       success: true,
-//       message: "You have accessed a protected route II.",
-//       userInfoII: req.user, // Includes subscription details
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Server error", error: error.message });
-//   }
-// });
+    return res.status(200).json({
+      success: true,
+      message: "Token retrived successfully.",
+      userInfoII: req.user, // Includes subscription details
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
 
 router.get("/subscriptionCheck", verifySubscription, async (req, res) => {
   try {
