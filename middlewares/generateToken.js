@@ -37,7 +37,7 @@ function generateToken(user) {
       name,
       phone,
       image,
-      exp
+
     };
 
     // Token options
