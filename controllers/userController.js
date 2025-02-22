@@ -121,7 +121,7 @@ exports.createUser = async (req, res) => {
 };
 
 // Asynchronous function to send email
-const sendVerificationEmail = async (email, token, verificationLink) => {
+const sendVerificationEmail = async (email, verificationLink) => {
   const mailOptions = {
     from: process.env.EMAIL_HOST_USER,
     to: email,
@@ -332,6 +332,7 @@ exports.verifyEmail = async (req, res) => {
 //     res.status(500).json({ success: false, message: "Server error" });
 //   }
 // };
+
 
 
 
