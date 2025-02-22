@@ -26,6 +26,7 @@ router.post("/clear-cookies", (req, res) => {
     secure: true, // Must be true for cross-origin cookies
     sameSite: "None", // Required for cross-origin requests
     path: "/", // Ensures it clears across all paths
+    credentials: true,
   });
 
   res.status(200).json({ success: true, message: "Cookies cleared" });
