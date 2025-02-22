@@ -42,7 +42,7 @@ function generateToken(user) {
 
     // Token options
     const options = {
-      expiresIn: "1m", // Token validity duration (e.g., 2 hours)
+      expiresIn: "1h", // Token validity duration (e.g., 2 hours)
     };
 
     // Generate and return the token
