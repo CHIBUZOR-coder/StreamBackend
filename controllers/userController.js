@@ -297,7 +297,7 @@ exports.loginuser = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid token" });
     }
 
-    // Clear previous authentication cookie g
+    // Clear previous authentication cookie
     res.clearCookie("auth_token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -332,12 +332,6 @@ exports.loginuser = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-
-
-
-
-
 
 // exports.loginuser = async (req, res) => {
 //   const { email, password } = req.body;
@@ -1004,69 +998,75 @@ exports.subscriptionDetails = async (req, res) => {
   }
 };
 
-// async function scheduleUnsubscribeTimersForAllUsers() {
-//   try {
-//     // Find all users with a "Subscribed" status
-//     const users = await prisma.user.findMany({
-//       where: { subscription: "Subscribed" },
-//       include: {
-//         receipt: {
-//           select: {
-//             created_at: true,
-//           },
-//         },
-//       },
-//     });
 
-//     const now = new Date();
-//     const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
-//     users.forEach((user) => {
-//       // Ensure you have the correct receipt date.
-//       // If receipt is an array, adjust accordingly (e.g., user.receipt[0].created_at).
-//       const subscriptionStart = new Date(user.receipt.created_at);
-//       const timeElapsed = now - subscriptionStart;
-//       const timeLeft = thirtyDaysInMs - timeElapsed;
 
-//       if (timeLeft <= 0) {
-//         // If the timer has already expired, unsubscribe immediately.
-//         (async () => {
-//           try {
-//             await prisma.user.update({
-//               where: { id: user.id },
-//               data: { subscription: "Unsubscribed" },
-//             });
-//             console.log(`User ${user.id} unsubscribed immediately.`);
-//           } catch (err) {
-//             console.error(`Error unsubscribing user ${user.id}:`, err);
-//           }
-//         })();
-//       } else {
-//         // Schedule a timer for the remaining time until unsubscription
-//         setTimeout(async () => {
-//           try {
-//             await prisma.user.update({
-//               where: { id: user.id },
-//               data: { subscription: "Unsubscribed" },
-//             });
-//             console.log(`User ${user.id} unsubscribed after timer.`);
-//           } catch (error) {
-//             console.error(`Error unsubscribing user ${user.id}:`, error);
-//           }
-//         }, timeLeft);
-//         console.log(
-//           `Scheduled unsubscribe timer for user ${user.id} in ${timeLeft} ms.`
-//         );
-//       }
-//     });
-//   } catch (error) {
-//     console.error("Error scheduling unsubscribe timers:", error);
-//   }
-// }
+async function scheduleUnsubscribeTimersForAllUsers() {
+  try {
+    // Find all users with a "Subscribed" status
+    const users = await prisma.user.findMany({
+      where: { subscription: "Subscribed" },
+      include: {
+        receipt: {
+          select: {
+            created_at: true,
+          },
+        },
+      },
+    });
 
-// // Use Node-Cron to run the scheduling function at a specific interval.
-// // In this example, the cron job runs every hour.
-// cron.schedule("0 * * * *", () => {
-//   console.log("Running scheduled unsubscribe timers check...");
-//   scheduleUnsubscribeTimersForAllUsers();
-// });
+    const now = new Date();
+    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
+    users.forEach((user) => {
+      // Ensure you have the correct receipt date.
+      // If receipt is an array, adjust accordingly (e.g., user.receipt[0].created_at).
+      const subscriptionStart = new Date(user.receipt.created_at);
+      const timeElapsed = now - subscriptionStart;
+      const timeLeft = thirtyDaysInMs - timeElapsed;
+
+      if (timeLeft <= 0) {
+        // If the timer has already expired, unsubscribe immediately.
+        (async () => {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { subscription: "Unsubscribed" },
+            });
+            console.log(`User ${user.id} unsubscribed immediately.`);
+          } catch (err) {
+            console.error(`Error unsubscribing user ${user.id}:`, err);
+          }
+        })();
+      } else {
+        // Schedule a timer for the remaining time until unsubscription
+        setTimeout(async () => {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { subscription: "Unsubscribed" },
+            });
+            console.log(`User ${user.id} unsubscribed after timer.`);
+          } catch (error) {
+            console.error(`Error unsubscribing user ${user.id}:`, error);
+          }
+        }, timeLeft);
+        console.log(
+          `Scheduled unsubscribe timer for user ${user.id} in ${timeLeft} ms.`
+        );
+      }
+    });
+  } catch (error) {
+    console.error("Error scheduling unsubscribe timers:", error);
+  }
+}
+
+// Use Node-Cron to run the scheduling function at a specific interval.
+// In this example, the cron job runs every hour.
+cron.schedule("0 * * * *", () => {
+  console.log("Running scheduled unsubscribe timers check...");
+  scheduleUnsubscribeTimersForAllUsers();
+});
+
+
+
