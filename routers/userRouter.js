@@ -86,7 +86,7 @@ router.get("/api/protectedRouteII", verifyToken, async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "You have accessed a protected route II.",
-      userInfo: req.user, // Includes subscription details
+      userInfoII: req.user, // Includes subscription details
     });
   } catch (error) {
     console.error(error);
