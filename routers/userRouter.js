@@ -25,7 +25,7 @@ router.post("/clear-cookies", (req, res) => {
   res.clearCookie("auth_token", {
     httpOnly: true,
     secure: true, // Must be true for cross-origin cookies
-    sameSite: "None", // Required for cross-origin requests
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     path: "/", // Ensures it clears across all paths
     credentials: true,
   });

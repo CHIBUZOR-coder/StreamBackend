@@ -298,12 +298,12 @@ exports.loginuser = async (req, res) => {
     }
 
     // Clear previous authentication cookie
-    res.clearCookie("auth_token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      path: "/",
-    });
+    // res.clearCookie("auth_token", {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    //   path: "/",
+    // });
 
     // Set new authentication cookie
     res.cookie("auth_token", token, {
