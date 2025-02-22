@@ -37,7 +37,7 @@ function generateToken(user) {
       name,
       phone,
       image,
-      exp: Math.floor(Date.now() / 1000) + 60,
+      exp
     };
 
     // Token options
