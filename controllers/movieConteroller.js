@@ -177,8 +177,9 @@ exports.getMovies = async (req, res) => {
     const movies = await prisma.movies.findMany({
       include: {
         casts: {
-          include: {
-            cast: true, // This ensures you get the full Cast details
+          select: {
+            role: true,
+            cast: true,
           },
         },
         category: { select: { tittle: true } },
@@ -191,7 +192,6 @@ exports.getMovies = async (req, res) => {
         },
       },
     });
-
     if (!movies) {
       return res
         .status(400)
