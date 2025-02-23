@@ -178,8 +178,15 @@ exports.getMovies = async (req, res) => {
       include: {
         casts: {
           select: {
-            role: true,
-            cast: true,
+            role: true, 
+            cast: {
+              select: {
+              
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
           },
         },
         category: { select: { tittle: true } },
