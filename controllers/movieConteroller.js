@@ -29,12 +29,18 @@ exports.createMovies = async (req, res) => {
       !language ||
       !description ||
       !price ||
-      !trailer ||
-      !categoryId
+      !trailer
     ) {
       return res.status(400).json({
         success: false,
         message: "Please provide all required fields",
+      });
+    }
+
+    if (!categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: "category id is required",
       });
     }
 
@@ -337,7 +343,7 @@ exports.MovieReviews = async (req, res) => {
         data: {
           userId: parseInt(userId),
           movieId: parseInt(movieId),
-          userRating :parsedRating,
+          userRating: parsedRating,
           userReview,
         },
       });
