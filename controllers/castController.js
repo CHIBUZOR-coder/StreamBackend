@@ -17,7 +17,7 @@ exports.AddCast = async (req, res) => {
     let Existing;
     let ExistingAndAssociated;
     let Done;
-    
+
     //find  movie
     const movie = await prisma.movies.findUnique({
       where: { id: parseInt(movieId) },
@@ -83,8 +83,13 @@ exports.AddCast = async (req, res) => {
       }
 
       // Create the cast association between the cast and the movie
+      // Create the cast association between the cast and the movie, including the role
       await prisma.castsOnMovies.create({
-        data: { castId, movieId: movie.id },
+        data: {
+          castId,
+          movieId: movie.id,
+          role, // Ensure the role is stored for this specific movie-cast relationship
+        },
       });
 
       // Add the cast details to the response array
