@@ -101,7 +101,7 @@ exports.createUser = async (req, res) => {
     // Send verification email
     const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
 
-    sendVerificationEmail(email, verifyEmailToken, verificationLink);
+    sendVerificationEmail(email, verificationLink);
 
     return res.status(201).json({
       success: true,
@@ -121,7 +121,7 @@ exports.createUser = async (req, res) => {
 };
 
 // Asynchronous function to send email
-const sendVerificationEmail = async (email, verificationLink) => {
+const sendVerificationEmail = async (email,  verificationLink) => {
   const mailOptions = {
     from: process.env.EMAIL_HOST_USER,
     to: email,
@@ -282,7 +282,7 @@ exports.loginuser = async (req, res) => {
       });
 
       const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
-      sendVerificationEmail(email, verifyEmailToken, verificationLink);
+      sendVerificationEmail(email, verificationLink);
 
       return res.status(400).json({
         success: true,
