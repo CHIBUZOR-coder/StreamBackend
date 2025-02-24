@@ -42,14 +42,14 @@ function generateToken(user) {
 
     // Token options
     const options = {
-      expiresIn: "2m", // Token validity duration (e.g., 2 hours)
+      expiresIn: "2h", // Token validity duration (e.g., 2 hours.)
     };
 
     // Generate and return the token
     return jwt.sign(payload, SECRET_KEY, options);
   } catch (error) {
     console.error("Error generating token:", error.message);
-    throw error; // Rethrow the error to ensure the calling code handles it
+    throw error; // Rethrow the error to ensure the calling code handles it 
   }
 }
 
