@@ -42,7 +42,7 @@ function generateToken(user) {
 
     // Token options
     const options = {
-      expiresIn: "1m", // Token validity duration (e.g., 2 hours)
+      expiresIn: "2h", // Token validity duration (e.g., 2 hours)
     };
 
     // Generate and return the token
@@ -72,7 +72,7 @@ function ResetPasswordToken(user) {
 
     // Token options
     const options = {
-      expiresIn: "2h", // Token validity duration (e.g., 2 hours)h
+      expiresIn: "10m", // Token validity duration (e.g., 2 hours)h
     };
 
     // Generate and return the token
