@@ -256,27 +256,18 @@ exports.UpdateMovie = async (req, res) => {
 };
 
 //Delete Movie
-exports.deleteAllMovies = async (req, res) => {
+exports.deleteAllMovie = async (req, res) => {
   try {
-    // Delete related records first to avoid foreign key constraint issues
-    await prisma.castsOnMovies.deleteMany();
-    await prisma.movieReviews.deleteMany();
-    await prisma.favouriteCartMovies.deleteMany();
-
-    // Now delete all movies
     const deletedMovies = await prisma.movies.deleteMany();
-
     if (deletedMovies.count === 0) {
       return res.status(404).json({
         success: false,
         message: "No movies found to delete.",
       });
     }
-
-    return res.status(200).json({
-      success: true,
-      message: "All movies deleted successfully.",
-    });
+    return res
+      .status(200)
+      .json({ success: true, message: "Movies Deleted successfully" });
   } catch (error) {
     console.error("Error deleting movies:", error.message);
     return res.status(500).json({
@@ -330,6 +321,7 @@ exports.deleteSingle = async (req, res) => {
     });
   }
 };
+
 
 exports.MovieReviews = async (req, res) => {
   const { userId, movieId, userRating, userReview } = req.body;
