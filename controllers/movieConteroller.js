@@ -256,18 +256,27 @@ exports.UpdateMovie = async (req, res) => {
 };
 
 //Delete Movie
-exports.deleteAllMovie = async (req, res) => {
+exports.deleteAllMovies = async (req, res) => {
   try {
+    // Delete related records first to avoid foreign key constraint issues
+    await prisma.castsOnMovies.deleteMany();
+    await prisma.movieReviews.deleteMany();
+    await prisma.favouriteCartMovies.deleteMany();
+
+    // Now delete all movies
     const deletedMovies = await prisma.movies.deleteMany();
+
     if (deletedMovies.count === 0) {
       return res.status(404).json({
         success: false,
         message: "No movies found to delete.",
       });
     }
-    return res
-      .status(200)
-      .json({ success: true, message: "Movies Deleted successfully" });
+
+    return res.status(200).json({
+      success: true,
+      message: "All movies deleted successfully.",
+    });
   } catch (error) {
     console.error("Error deleting movies:", error.message);
     return res.status(500).json({
@@ -278,6 +287,7 @@ exports.deleteAllMovie = async (req, res) => {
 };
 
 //Delete Single
+// Delete Single Movie
 exports.deleteSingle = async (req, res) => {
   const { id } = req.body;
 
@@ -287,26 +297,37 @@ exports.deleteSingle = async (req, res) => {
     });
 
     if (!movie) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Movie does not exist" });
+      return res.status(404).json({
+        success: false,
+        message: "Movie does not exist",
+      });
     }
 
-    const deleted = await prisma.movies.delete({ where: { id: parseInt(id) } });
-    if (!deleted) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Unable to delete Movie" });
+    // Find associated cast entries
+    const castOnMovies = await prisma.castsOnMovies.findMany({
+      where: { movieId: parseInt(id) },
+    });
+
+    // Delete associated cast entries first
+    if (castOnMovies.length > 0) {
+      await prisma.castsOnMovies.deleteMany({
+        where: { movieId: parseInt(id) },
+      });
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Movie deleted successfully" });
+    // Now delete the movie
+    await prisma.movies.delete({ where: { id: parseInt(id) } });
+
+    return res.status(200).json({
+      success: true,
+      message: "Movie deleted successfully",
+    });
   } catch (error) {
-    console.error(error.message);
-    return res
-      .status(400)
-      .json({ success: false, message: "Unable to delete Movie" });
+    console.error("Error deleting movie:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
