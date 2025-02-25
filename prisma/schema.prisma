@@ -29,6 +29,7 @@ model User {
   subscription     Subscription   @default(UNSUBSCRIBED)
   movieReviews     MovieReviews[]
   resetToken       String?
+  WatchCart        WatchCart?
 }
 
 model Receipt {
@@ -111,9 +112,10 @@ model Movies {
 
   trailer           String
   casts             CastsOnMovies[]
-  created_at        DateTime        @default(now())
-  product_update_at DateTime        @updatedAt
+  created_at        DateTime          @default(now())
+  product_update_at DateTime          @updatedAt
   movieReviews      MovieReviews[]
+  WatchCartMovies   WatchCartMovies[]
 }
 
 model Casts {
@@ -145,6 +147,14 @@ model FavouriteCart {
   favouriteCartMovies FavouriteCartMovies[]
 }
 
+model WatchCart {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  watchCartMovies WatchCartMovies[]
+}
+
 model FavouriteCartMovies {
   favouriteCart   FavouriteCart @relation(fields: [favouriteCartId], references: [id])
   favouriteCartId Int
@@ -153,4 +163,14 @@ model FavouriteCartMovies {
   movieId Int
 
   @@unique([favouriteCartId, movieId]) // Prevent duplicate entries
+}
+
+model WatchCartMovies {
+  watchCart   WatchCart @relation(fields: [watchCartId], references: [id])
+  watchCartId Int
+
+  movie   Movies @relation(fields: [movieId], references: [id])
+  movieId Int
+
+  @@unique([watchCartId, movieId]) // Prevent duplicate entries
 }

@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.addToFavouriteCart = async (req, res) => {
+exports.addToWatchCart = async (req, res) => {
   const { movieId, Id } = req.body;
   console.log("movieId:", movieId);
 
@@ -105,11 +105,11 @@ exports.getFavourite = async (req, res) => {
   }
 };
 
+
 exports.removeFavouriteMovie = async (req, res) => {
   try {
     const { name } = req.params; // User's name
     const { movieId } = req.body; // Movie ID to remove
-    console.log("Received params:", req.params);
 
     // Find the user by name
     const user = await prisma.user.findUnique({ where: { name } });
