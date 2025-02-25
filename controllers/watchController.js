@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.addToWatchCart = async (req, res) => {
+exports.addToFavouriteCart = async (req, res) => {
   const { movieId, Id } = req.body;
   console.log("movieId:", movieId);
 
