@@ -135,7 +135,7 @@ exports.removeFavouriteMovie = async (req, res) => {
     const deletedMovie = await prisma.favouriteCartMovies.deleteMany({
       where: {
         favouriteCartId: favouriteCart.id,
-        movieId: movieId,
+        movieId: parseInt(movieId),
       },
     });
 

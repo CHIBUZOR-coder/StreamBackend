@@ -1,19 +1,19 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.addToFavouriteCart = async (req, res) => {
+exports.addToWatchCount = async (req, res) => {
   const { movieId, Id } = req.body;
   console.log("movieId:", movieId);
 
   try {
     //find the cart
-    let favouriteCart = await prisma.favouriteCart.findUnique({
+    let watchCart = await prisma.watchCart.findUnique({
       where: { userId: Id },
     });
     // console.log("User ID:", Id);
     //create a new one if the cart was not found
-    if (!favouriteCart) {
-      favouriteCart = await prisma.favouriteCart.create({
+    if (!watchCart) {
+      watchCart = await prisma.watchCart.create({
         data: { userId: parseInt(Id) },
       });
     }
@@ -33,17 +33,17 @@ exports.addToFavouriteCart = async (req, res) => {
     }
 
     //favouriteCartMovie is a singular movie that is to be added to cart
-    let favouriteCartMovie = await prisma.favouriteCartMovies.findFirst({
-      where: { favouriteCartId: favouriteCart.id, movieId: movie.id },
+    let watchCartMovie = await prisma.watchCartMovies.findFirst({
+      where: { watchCartId: watchCart.id, movieId: movie.id },
     });
-    if (favouriteCartMovie) {
+    if (watchCartMovie) {
       return res.status(400).json({
         success: false,
-        message: "the movies you want to add to favourite already exist",
+        message: "the movies you want to add to watch count already exist",
       });
     } else {
-      favouriteCartMovie = await prisma.favouriteCartMovies.create({
-        data: { favouriteCartId: favouriteCart.id, movieId: movie.id },
+      watchCartMovie = await prisma.watchCartMovies.create({
+        data: { watchCartId: watchCart.id, movieId: movie.id },
       });
     }
     return res.status(200).json({
@@ -57,7 +57,7 @@ exports.addToFavouriteCart = async (req, res) => {
   }
 };
 
-exports.getFavourite = async (req, res) => {
+exports.getWatchCount = async (req, res) => {
   try {
     const { name } = req.params;
 
@@ -71,10 +71,10 @@ exports.getFavourite = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    const favouriteCart = await prisma.favouriteCart.findUnique({
+    const watchCart = await prisma.watchCart.findUnique({
       where: { userId: user.id },
       include: {
-        favouriteCartMovies: {
+        watchCartMovies: {
           include: {
             movie: {
               include: {
@@ -86,18 +86,16 @@ exports.getFavourite = async (req, res) => {
       },
     });
 
-    if (!favouriteCart) {
+    if (!watchCart) {
       return res
         .status(404)
         .json({ success: false, message: "Unable to find user cart!" });
     }
 
-    res.status(200);
-
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: "Favourite cart retrived succeessfully",
-      data: favouriteCart,
+      data: watchCart,
     });
   } catch (error) {
     console.log(error.message);
@@ -105,8 +103,7 @@ exports.getFavourite = async (req, res) => {
   }
 };
 
-
-exports.removeFavouriteMovie = async (req, res) => {
+exports.removeWatchCount = async (req, res) => {
   try {
     const { name } = req.params; // User's name
     const { movieId } = req.body; // Movie ID to remove
@@ -121,21 +118,21 @@ exports.removeFavouriteMovie = async (req, res) => {
     }
 
     // Find the user's favourite cart
-    const favouriteCart = await prisma.favouriteCart.findUnique({
+    const watchCart = await prisma.watchCart.findUnique({
       where: { userId: user.id },
     });
 
-    if (!favouriteCart) {
+    if (!watchCart) {
       return res
         .status(404)
         .json({ success: false, message: "Favourite cart not found" });
     }
 
     // Delete the movie from the favourite cart
-    const deletedMovie = await prisma.favouriteCartMovies.deleteMany({
+    const deletedMovie = await prisma.watchCartMovies.deleteMany({
       where: {
-        favouriteCartId: favouriteCart.id,
-        movieId: movieId,
+        watchCartId: watchCart.id,
+        movieId: parseInt(movieId),
       },
     });
 
