@@ -110,6 +110,8 @@ exports.removeFavouriteMovie = async (req, res) => {
     const { name } = req.params; // User's name
     const { movieId } = req.body; // Movie ID to remove
     console.log("Received params:", req.params);
+    console.log("body:", req.body);
+    
 
     // Find the user by name
     const user = await prisma.user.findUnique({ where: { name } });
