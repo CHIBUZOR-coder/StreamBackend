@@ -333,96 +333,6 @@ exports.loginuser = async (req, res) => {
   }
 };
 
-// exports.loginuser = async (req, res) => {
-//   const { email, password } = req.body;
-//   const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
-
-//   try {
-//     console.log("req body:", req.body);
-//     if (!email || !password) {
-//       res
-//         .status(400)
-//         .json({ success: false, message: "All feilds must not be empty" });
-//     }
-//     // const user = await prisma.user.findUnique({ where: { email:email } });
-//     const user = await prisma.user.findUnique({
-//       where: { email: email },
-//       select: {
-//         id: true,
-//         role: true,
-//         email: true,
-//         name: true,
-//         phone: true,
-//         image: true,
-//         password: true,
-//         isVerified: true,
-//         subscription: true, // Include password for validation
-//       },
-//     });
-
-//     if (!user) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "user does not exist" });
-//     }
-//     const validatePassword = await bcrypt.compare(password, user.password);
-//     if (!validatePassword) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "password is incorrect" });
-//     }
-
-//     const isverified = user.isverified;
-//     if (isverified === false) {
-//       const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
-//         expiresIn: "1h",
-//       });
-
-//       sendVerificationEmail(email, verifyEmailToken, verificationLink);
-//       await prisma.user.update({
-//         where: { id: user.id },
-//         data: { isVerified: true },
-//       });
-//     }
-
-//     const token = generateToken(user);
-//     if (!token)
-//       return res.status(400).json({ success: false, message: "Invalid token" });
-
-//     res.clearCookie("auth_token", {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-//       path: "/", // Make sure the path matches where the cookie was originally set
-//     });
-
-//     const isProduction = process.env.NODE_ENV === "production";
-
-//     res.cookie("auth_token", token, {
-//       httpOnly: true, // Ensures the cookie cannot be accessed via JavaScript
-//       secure: process.env.NODE_ENV === "production", // Set to true only in production (requires HTTPS)
-//       expires: new Date(Date.now() + 7200000), // 2 hours expiration for the cookie
-//       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // SameSite=None for cross-origin requests in production
-//     });
-
-//     res.status(200);
-//     res.json({
-//       success: true,
-//       message: "You are now logged in",
-//       role: user.role,
-//       userInfo: {
-//         name: user.name,
-//         email: user.email,
-//         phone: user.phone,
-//         image: user.image,
-//         id: user.id,
-//         subscription: user.subscription,
-//       },
-//     });
-//   } catch (error) {
-//     console.error({ message: error.message });
-//   }
-// };
 
 exports.getUser = async (req, res) => {
   try {
@@ -1001,72 +911,72 @@ exports.subscriptionDetails = async (req, res) => {
 
 
 
-// async function scheduleUnsubscribeTimersForAllUsers() {
-//   try {
-//     // Find all users with a "Subscribed" status
-//     const users = await prisma.user.findMany({
-//       where: { subscription: "Subscribed" },
-//       include: {
-//         receipt: {
-//           select: {
-//             created_at: true,
-//           },
-//         },
-//       },
-//     });
+async function scheduleUnsubscribeTimersForAllUsers() {
+  try {
+    // Find all users with a "Subscribed" status
+    const users = await prisma.user.findMany({
+      where: { subscription: "Subscribed" },
+      include: {
+        receipt: {
+          select: {
+            created_at: true,
+          },
+        },
+      },
+    });
 
-//     const now = new Date();
-//     const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+    const now = new Date();
+    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
-//     users.forEach((user) => {
-//       // Ensure you have the correct receipt date.
-//       // If receipt is an array, adjust accordingly (e.g., user.receipt[0].created_at).
-//       const subscriptionStart = new Date(user.receipt.created_at);
-//       const timeElapsed = now - subscriptionStart;
-//       const timeLeft = thirtyDaysInMs - timeElapsed;
+    users.forEach((user) => {
+      // Ensure you have the correct receipt date.
+      // If receipt is an array, adjust accordingly (e.g., user.receipt[0].created_at).
+      const subscriptionStart = new Date(user.receipt.created_at);
+      const timeElapsed = now - subscriptionStart;
+      const timeLeft = thirtyDaysInMs - timeElapsed;
 
-//       if (timeLeft <= 0) {
-//         // If the timer has already expired, unsubscribe immediately.
-//         (async () => {
-//           try {
-//             await prisma.user.update({
-//               where: { id: user.id },
-//               data: { subscription: "Unsubscribed" },
-//             });
-//             console.log(`User ${user.id} unsubscribed immediately.`);
-//           } catch (err) {
-//             console.error(`Error unsubscribing user ${user.id}:`, err);
-//           }
-//         })();
-//       } else {
-//         // Schedule a timer for the remaining time until unsubscription
-//         setTimeout(async () => {
-//           try {
-//             await prisma.user.update({
-//               where: { id: user.id },
-//               data: { subscription: "Unsubscribed" },
-//             });
-//             console.log(`User ${user.id} unsubscribed after timer.`);
-//           } catch (error) {
-//             console.error(`Error unsubscribing user ${user.id}:`, error);
-//           }
-//         }, timeLeft);
-//         console.log(
-//           `Scheduled unsubscribe timer for user ${user.id} in ${timeLeft} ms.`
-//         );
-//       }
-//     });
-//   } catch (error) {
-//     console.error("Error scheduling unsubscribe timers:", error);
-//   }
-// }
+      if (timeLeft <= 0) {
+        // If the timer has already expired, unsubscribe immediately.
+        (async () => {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { subscription: "Unsubscribed" },
+            });
+            console.log(`User ${user.id} unsubscribed immediately.`);
+          } catch (err) {
+            console.error(`Error unsubscribing user ${user.id}:`, err);
+          }
+        })();
+      } else {
+        // Schedule a timer for the remaining time until unsubscription
+        setTimeout(async () => {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { subscription: "Unsubscribed" },
+            });
+            console.log(`User ${user.id} unsubscribed after timer.`);
+          } catch (error) {
+            console.error(`Error unsubscribing user ${user.id}:`, error);
+          }
+        }, timeLeft);
+        console.log(
+          `Scheduled unsubscribe timer for user ${user.id} in ${timeLeft} ms.`
+        );
+      }
+    });
+  } catch (error) {
+    console.error("Error scheduling unsubscribe timers:", error);
+  }
+}
 
-// // Use Node-Cron to run the scheduling function at a specific interval.
-// // In this example, the cron job runs every hour.
-// cron.schedule("0 * * * *", () => {
-//   console.log("Running scheduled unsubscribe timers check...");
-//   scheduleUnsubscribeTimersForAllUsers();
-// });
+// Use Node-Cron to run the scheduling function at a specific interval.
+// In this example, the cron job runs every hour.
+cron.schedule("0 * * * *", () => {
+  console.log("Running scheduled unsubscribe timers check...");
+  scheduleUnsubscribeTimersForAllUsers();
+});
 
 
 
