@@ -74,7 +74,15 @@ exports.getWatchCount = async (req, res) => {
       include: {
         watchCartMovies: {
           select: {
-            movie: true,
+            movie: {
+              include: {
+                category: {
+                  select: {
+                    tittle: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
