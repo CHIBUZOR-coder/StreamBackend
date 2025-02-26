@@ -101,7 +101,7 @@ exports.createUser = async (req, res) => {
     // Send verification email
     const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
 
-    sendVerificationEmail(email, verificationLink);
+    await sendVerificationEmail(email, verificationLink);
 
     return res.status(201).json({
       success: true,
@@ -121,7 +121,7 @@ exports.createUser = async (req, res) => {
 };
 
 // Asynchronous function to send email
-const sendVerificationEmail = async (email,  verificationLink) => {
+const sendVerificationEmail = async (email, verificationLink) => {
   const mailOptions = {
     from: process.env.EMAIL_HOST_USER,
     to: email,
@@ -332,7 +332,6 @@ exports.loginuser = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 exports.getUser = async (req, res) => {
   try {
@@ -908,23 +907,49 @@ exports.subscriptionDetails = async (req, res) => {
   }
 };
 
+const SubscriptionExpiryEmail = async (email, expiryDate) => {
+  const mailOptions = {
+    from: process.env.EMAIL_HOST_USER,
+    to: email,
+    subject: "Expired Subscription",
+    html: `
+      <div style="width: 100%; height:600px; max-width: 600px; margin: auto; text-align: center;
+      font-family: Arial, sans-serif; border-radius: 10px; overflow: hidden;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="height: 300px;">
+          <tr>
+            <td style="background: url('https://res.cloudinary.com/dtjgj2odu/image/upload/v1739154208/logo_c6zxpk.png') 
+            no-repeat center center; background-size: cover;"></td>
+          </tr>
+        </table>
+        <div style="padding: 20px; color:  #0B0F29;">
+          <p style="font-size: 16px;">Dear valued customer, your subscription has expired at "${expiryDate}". To keep on enjoying our services, please subscribe again</p>
+         
+        </div>
+      </div>
+    `,
+  };
 
-
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Verification email sent to ${email}`);
+  } catch (error) {
+    console.error(`Error sending email to ${email}:`, error);
+  }
+};
 
 async function scheduleUnsubscribeTimersForAllUsers() {
   try {
     // Find all users with a "Subscribed" status
- const users = await prisma.user.findMany({
-   where: { subscription: Subscription.SUBSCRIBED }, // Use enum value
-   include: {
-     receipt: {
-       select: {
-         created_at: true,
-       },
-     },
-   },
- });
-
+    const users = await prisma.user.findMany({
+      where: { subscription: Subscription.SUBSCRIBED }, // Use enum value
+      include: {
+        receipt: {
+          select: {
+            created_at: true,
+          },
+        },
+      },
+    });
 
     const now = new Date();
     const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
@@ -936,6 +961,10 @@ async function scheduleUnsubscribeTimersForAllUsers() {
       const timeElapsed = now - subscriptionStart;
       const timeLeft = thirtyDaysInMs - timeElapsed;
 
+      const futureDate = new Date(subscriptionStart);
+      futureDate.setDate(subscriptionStart.getDate() + 30);
+      console.log(futureDate.toISOString()); // Outputs: YYYY-MM-DDTHH:MM:SS.sssZ
+
       if (timeLeft <= 0) {
         // If the timer has already expired, unsubscribe immediately.
         (async () => {
@@ -944,6 +973,9 @@ async function scheduleUnsubscribeTimersForAllUsers() {
               where: { id: user.id },
               data: { subscription: "Unsubscribed" },
             });
+
+            await SubscriptionExpiryEmail(user.email, futureDate.toISOString());
+
             console.log(`User ${user.id} unsubscribed immediately.`);
           } catch (err) {
             console.error(`Error unsubscribing user ${user.id}:`, err);
@@ -978,6 +1010,3 @@ cron.schedule("0 * * * *", () => {
   console.log("Running scheduled unsubscribe timers check...");
   scheduleUnsubscribeTimersForAllUsers();
 });
-
-
-
