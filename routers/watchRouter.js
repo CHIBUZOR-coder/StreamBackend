@@ -5,3 +5,5 @@ const watchController = require("../controllers/watchController");
 
 
 router.post("/addwatchCount", watchController.addToWatchCount);
+
+module.exports = router;
