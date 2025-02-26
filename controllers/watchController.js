@@ -48,7 +48,7 @@ exports.addToWatchCount = async (req, res) => {
     }
     return res.status(200).json({
       success: true,
-      message: "Movie added to cart successfully",
+      message: "This movie have successfully been added to your watch history ",
       data: movie,
     });
   } catch (error) {
@@ -94,7 +94,7 @@ exports.getWatchCount = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Favourite cart retrived succeessfully",
+      message: "Watched movies cart retrived succeessfully",
       data: watchCart,
     });
   } catch (error) {

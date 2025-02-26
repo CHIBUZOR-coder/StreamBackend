@@ -3,6 +3,6 @@ const router = express.Router();
 const watchController = require("../controllers/watchController");
 
 router.post("/addwatchCount", watchController.addToWatchCount);
-router.get("/addwatchCount", watchController.getWatchCount);
+router.get("/getWatchCount", watchController.getWatchCount);
 
 module.exports = router;
