@@ -5,6 +5,7 @@ const castRouter = require("./routers/castRouter");
 const userRouter = require("./routers/userRouter");
 const cookieParser = require("cookie-parser");
 const favouriteCartRouter = require("./routers/favouriteCartRouter");
+const watchCartRouter = require("./routers/watchRouter");
 const paymentRouter = require("./routers/paymentRoutes");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -18,7 +19,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // For URL-encod
 // Cookie parser  middleware
 app.use(cookieParser());
 
-
 app.use(
   cors({
     origin: "https://stream-ashy-theta.vercel.app",
@@ -28,7 +28,6 @@ app.use(
   })
 );
 
-
 // Using routers
 app.use("/", categoryRoute);
 app.use("/", moviesRouter);
@@ -36,6 +35,7 @@ app.use("/", castRouter);
 app.use("/", userRouter);
 app.use("/", favouriteCartRouter);
 app.use("/", paymentRouter);
+app.use("/", watchCartRouter);
 
 app.listen(port, () => {
   console.log(`Listening at port ${port}`);
