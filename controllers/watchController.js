@@ -74,7 +74,7 @@ exports.getWatchCount = async (req, res) => {
       where: { userId: user.id },
       include: {
         watchCartMovies: {
-          include: {
+          select: {
             movie: {
               include: {
                 category: true,
