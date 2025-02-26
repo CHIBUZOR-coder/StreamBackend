@@ -60,7 +60,7 @@ exports.addToWatchCount = async (req, res) => {
 exports.getWatchCount = async (req, res) => {
   try {
     // console.log("userId:", id);
-      const { name } = req.query;
+    const { name } = req.query;
 
     const user = await prisma.user.findUnique({ where: { name } });
 
@@ -69,17 +69,12 @@ exports.getWatchCount = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-
     const watchCart = await prisma.watchCart.findUnique({
       where: { userId: user.id },
       include: {
         watchCartMovies: {
           select: {
-            movie: {
-              include: {
-                category: true,
-              },
-            },
+            movie: true,
           },
         },
       },
