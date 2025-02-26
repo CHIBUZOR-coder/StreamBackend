@@ -914,16 +914,17 @@ exports.subscriptionDetails = async (req, res) => {
 async function scheduleUnsubscribeTimersForAllUsers() {
   try {
     // Find all users with a "Subscribed" status
-    const users = await prisma.user.findMany({
-      where: { subscription: "Subscribed" },
-      include: {
-        receipt: {
-          select: {
-            created_at: true,
-          },
-        },
-      },
-    });
+ const users = await prisma.user.findMany({
+   where: { subscription: Subscription.SUBSCRIBED }, // Use enum value
+   include: {
+     receipt: {
+       select: {
+         created_at: true,
+       },
+     },
+   },
+ });
+
 
     const now = new Date();
     const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
