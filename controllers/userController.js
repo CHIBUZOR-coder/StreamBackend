@@ -42,6 +42,17 @@ exports.createUser = async (req, res) => {
       });
     }
 
+    const passwordRegex = /^[A-Z](?=.*[\W_])/;
+    // ^[A-Z]       -> Ensures the password starts with a capital letter
+    // (?=.*[\W_])  -> Ensures at least one special character (non-alphanumeric)
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must start with a capital letter and contain at least one special character.",
+      });
+    }
     // Validate passwords
     if (password.length < 8) {
       return res.status(400).json({
