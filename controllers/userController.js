@@ -828,6 +828,17 @@ exports.resetPassword = async (req, res) => {
       where: { email: decoded.email, resetToken: token },
     });
 
+    const passwordRegex = /^[A-Z](?=.*[\W_])/;
+    // ^[A-Z]       -> Ensures the password starts with a capital letter
+    // (?=.*[\W_])  -> Ensures at least one special character (non-alphanumeric)
+
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must start with a capital letter and contain at least one special character.",
+      });
+    }
     if (newPassword !== confirmPassword) {
       return res
         .status(400)
@@ -952,7 +963,7 @@ async function scheduleUnsubscribeTimersForAllUsers() {
   try {
     // Find all users with a "Subscribed" status
     const users = await prisma.user.findMany({
-       where: { subscription: "Subscribed" }, // Use enum value
+      where: { subscription: "Subscribed" }, // Use enum value
       include: {
         receipt: {
           select: {
