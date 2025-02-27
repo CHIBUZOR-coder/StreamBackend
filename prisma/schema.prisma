@@ -156,20 +156,20 @@ model WatchCart {
 }
 
 model FavouriteCartMovies {
-  favouriteCart   FavouriteCart @relation(fields: [favouriteCartId], references: [id])
+  favouriteCart   FavouriteCart @relation(fields: [favouriteCartId], references: [id], onDelete: Cascade)
   favouriteCartId Int
 
-  movie   Movies @relation(fields: [movieId], references: [id])
+  movie   Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
   movieId Int
 
   @@unique([favouriteCartId, movieId]) // Prevent duplicate entries
 }
 
 model WatchCartMovies {
-  watchCart   WatchCart @relation(fields: [watchCartId], references: [id])
+  watchCart   WatchCart @relation(fields: [watchCartId], references: [id], onDelete: Cascade)
   watchCartId Int
 
-  movie   Movies @relation(fields: [movieId], references: [id])
+  movie   Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
   movieId Int
 
   @@unique([watchCartId, movieId]) // Prevent duplicate entries
