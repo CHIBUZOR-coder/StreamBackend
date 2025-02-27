@@ -952,7 +952,7 @@ async function scheduleUnsubscribeTimersForAllUsers() {
   try {
     // Find all users with a "Subscribed" status
     const users = await prisma.user.findMany({
-      where: { subscription: Subscription.SUBSCRIBED }, // Use enum value
+       where: { subscription: "Subscribed" }, // Use enum value
       include: {
         receipt: {
           select: {
