@@ -134,7 +134,10 @@ exports.createUser = async (req, res) => {
 // Asynchronous function to send email
 const sendVerificationEmail = async (email, verificationLink) => {
   const mailOptions = {
-    from: process.env.EMAIL_HOST_USER,
+    from: {
+      name: Stream,
+      address: process.env.EMAIL_HOST_USER,
+    },
     to: email,
     subject: "Email Verification",
     html: `
