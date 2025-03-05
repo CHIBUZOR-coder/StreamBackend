@@ -12,7 +12,7 @@ const cron = require("node-cron");
 
 //render is not recognising my prisma migrations. so i use an old field resetToken which is either true of false checking if user has been verified by email
 exports.createUser = async (req, res) => {
-  const { email, phone, name, password, confirmpassword } = req.body;
+  const { email, phone, userName, name, password, confirmpassword } = req.body;
 
   if (!email || !phone || !name || !password || !confirmpassword) {
     return res.status(400).json({
@@ -99,6 +99,7 @@ exports.createUser = async (req, res) => {
         password: hashedPassword,
         image: imageUrl || null,
         phone,
+        userName,
       },
     });
 
@@ -123,6 +124,7 @@ exports.createUser = async (req, res) => {
         email: newUser.email,
         name: newUser.name,
         image: newUser.image,
+        userName: userName,
       },
     });
   } catch (error) {
@@ -160,7 +162,6 @@ const sendVerificationEmail = async (email, verificationLink) => {
       </div>
     `,
   };
-  
 
   try {
     await transporter.sendMail(mailOptions);
