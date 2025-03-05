@@ -160,6 +160,7 @@ const sendVerificationEmail = async (email, verificationLink) => {
       </div>
     `,
   };
+  
 
   try {
     await transporter.sendMail(mailOptions);
@@ -311,13 +312,13 @@ exports.loginuser = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid token" });
     }
 
-    // Clear previous authentication cookie
-    // res.clearCookie("auth_token", {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    //   path: "/",
-    // });
+    Clear previous authentication cookie
+    res.clearCookie("auth_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+    });
 
     // Set new authentication cookie
     res.cookie("auth_token", token, {

@@ -37,6 +37,10 @@ app.use("/", favouriteCartRouter);
 app.use("/", paymentRouter);
 app.use("/", watchCartRouter);
 
+
+console.log("e de work oo");
+
 app.listen(port, () => {
   console.log(`Listening at port ${port}`);
+
 });
