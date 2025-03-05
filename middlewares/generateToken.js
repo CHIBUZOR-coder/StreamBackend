@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 function generateToken(user) {
   try {
-    const { id, role, email, name, phone, image, password } = user;
+    const { id, role, email, name, phone, image, password, userName } = user;
     console.log("user", user);
     let expp;
     if (!name) {
