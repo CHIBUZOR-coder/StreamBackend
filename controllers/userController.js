@@ -44,11 +44,6 @@ exports.createUser = async (req, res) => {
       success: false,
       message: "confirmpassword is required!",
     });
-  } else if (!userName) {
-    return res.status(400).json({
-      success: false,
-      message: "userName is required!",
-    });
   }
 
   console.log("body:", req.body);
