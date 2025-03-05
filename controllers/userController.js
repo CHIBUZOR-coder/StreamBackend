@@ -312,7 +312,7 @@ exports.loginuser = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid token" });
     }
 
-    Clear previous authentication cookie
+    // Clear previous authentication cookies
     res.clearCookie("auth_token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
