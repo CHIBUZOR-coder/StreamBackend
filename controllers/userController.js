@@ -14,10 +14,40 @@ const cron = require("node-cron");
 exports.createUser = async (req, res) => {
   const { email, phone, userName, name, password, confirmpassword } = req.body;
 
-  if (!email || !phone || !name || !password || !confirmpassword) {
+  if (!email) {
     return res.status(400).json({
       success: false,
       message: "All fields are required.",
+    });
+  } else if (!phone) {
+    return res.status(400).json({
+      success: false,
+      message: "phone number is required!",
+    });
+  } else if (!name) {
+    return res.status(400).json({
+      success: false,
+      message: "name is required!",
+    });
+  } else if (!password) {
+    return res.status(400).json({
+      success: false,
+      message: "password is required!",
+    });
+  } else if (!confirmpassword) {
+    return res.status(400).json({
+      success: false,
+      message: "confirmpassword is required!",
+    });
+  } else if (!User) {
+    return res.status(400).json({
+      success: false,
+      message: "confirmpassword is required!",
+    });
+  } else if (!userName) {
+    return res.status(400).json({
+      success: false,
+      message: "userName is required!",
     });
   }
 
