@@ -37,7 +37,7 @@ function generateToken(user) {
       name,
       phone,
       image,
-    
+      userName,
     };
 
     // Token options
@@ -49,7 +49,7 @@ function generateToken(user) {
     return jwt.sign(payload, SECRET_KEY, options);
   } catch (error) {
     console.error("Error generating token:", error.message);
-    throw error; // Rethrow the error to ensure the calling code handles it 
+    throw error; // Rethrow the error to ensure the calling code handles it
   }
 }
 
@@ -72,7 +72,7 @@ function ResetPasswordToken(user) {
 
     // Token options
     const options = {
-      expiresIn: "10m", // Token validity duration (e.g., 2 hours)h
+      expiresIn: "15m", // Token validity duration (e.g., 2 hours)h
     };
 
     // Generate and return the token

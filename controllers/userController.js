@@ -288,6 +288,7 @@ exports.loginuser = async (req, res) => {
         status: true,
         id: true,
         role: true,
+        userName: true,
         email: true,
         name: true,
         phone: true,
@@ -365,6 +366,7 @@ exports.loginuser = async (req, res) => {
         phone: user.phone,
         image: user.image,
         id: user.id,
+        userName: user.userName,
         subscription: user.subscription,
       },
     });
