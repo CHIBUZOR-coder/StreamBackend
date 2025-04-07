@@ -142,8 +142,7 @@ exports.createUser = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message:
-        "User registered successfully. Please check your email for verification.",
+      message: `User registered successfully. Please check ${email} for verification.`,
       user: {
         id: newUser.id,
         email: newUser.email,
@@ -860,6 +859,13 @@ exports.resetPassword = async (req, res) => {
       where: { email: decoded.email, resetToken: token },
     });
 
+      if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token!",
+      });
+    }
+
     const passwordRegex = /^[A-Z](?=.*[\W_])/;
     // ^[A-Z]       -> Ensures the password starts with a capital letter
     // (?=.*[\W_])  -> Ensures at least one special character (non-alphanumeric)
@@ -877,12 +883,7 @@ exports.resetPassword = async (req, res) => {
         .json({ success: false, message: "Passwords does not match!" });
     }
 
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired reset token!",
-      });
-    }
+  
 
     // Hash new password
     const salt = await bcrypt.genSalt(11);
