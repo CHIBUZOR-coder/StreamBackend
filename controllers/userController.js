@@ -96,6 +96,7 @@ exports.createUser = async (req, res) => {
 
     // Validate file upload
     if (req.file) {
+      console.log("file", req.file);
       imageUrl = await uploadToCloudinary(req.file.buffer, "image");
       if (!imageUrl) {
         return res.status(500).json({
