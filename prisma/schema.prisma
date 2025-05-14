@@ -19,7 +19,7 @@ model User {
   password         String
   image            String?
   name             String         @unique
-  userName         String?        @unique
+  userName         String?        
   phone            String?
   status           Boolean        @default(false)
   resetTokenExpiry DateTime?
