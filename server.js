@@ -28,24 +28,26 @@ app.use(cookieParser());
 //     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Include OPTIONS for preflight requests
 //   })
 // );
-
 const allowedOrigins = [
-  "https://stream-ashy-theta.vercel.app", // your deployed web app
-  "http://localhost:3000", // your local frontend (optional)
+  "https://stream-ashy-theta.vercel.app", // Deployed React frontend
+  "http://localhost:3000", // Local React dev
 ];
 
+// CORS middleware
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl/postman)
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true); // allow request
+        callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS")); // block request
+        console.log("Blocked by CORS: ", origin);
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
