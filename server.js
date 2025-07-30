@@ -19,13 +19,33 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // For URL-encod
 // Cookie parser  middleware
 app.use(cookieParser());
 
+// app.use(
+//   cors({
+//     origin: "https://stream-ashy-theta.vercel.app",
+
+//     credentials: true,
+//     allowedHeaders: ["Content-Type", "Authorization"], // Ensure it allows Authorization header if used
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Include OPTIONS for preflight requests
+//   })
+// );
+
+const allowedOrigins = [
+  "https://stream-ashy-theta.vercel.app", // your deployed web app
+  "http://localhost:3000", // your local frontend (optional)
+];
+
 app.use(
   cors({
-    // origin: "https://stream-ashy-theta.vercel.app",
-    origin: "*",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // allow request
+      } else {
+        callback(new Error("Not allowed by CORS")); // block request
+      }
+    },
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"], // Ensure it allows Authorization header if used
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Include OPTIONS for preflight requests
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
 
@@ -38,10 +58,8 @@ app.use("/", favouriteCartRouter);
 app.use("/", paymentRouter);
 app.use("/", watchCartRouter);
 
-
 console.log("e de work oo");
 
 app.listen(port, () => {
   console.log(`Listening at port ${port}`);
-
 });
