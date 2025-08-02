@@ -178,6 +178,9 @@ exports.AddTrendingMovies = async (req, res) => {
   try {
     const { id } = req.body;
 
+    console.log("req.body:", req.body);
+    
+
     // 1. Find the movie from the movies table
     const existingMovie = await prisma.movies.findUnique({ where: { id } });
 
@@ -193,7 +196,7 @@ exports.AddTrendingMovies = async (req, res) => {
 
     // 2. Extract only the necessary fields for trending table
     const { name,
-        imageUrl,
+        image,
         videoUrl,
         time,
         approxiT,
@@ -226,7 +229,7 @@ if (isAlreadyTrending) {
     const newTrendingMovie = await prisma.trending.create({
       data: {
         name,
-        imageUrl,
+        image,
         videoUrl,
         time,
         approxiT,
