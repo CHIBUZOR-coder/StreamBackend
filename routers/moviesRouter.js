@@ -22,5 +22,6 @@ router.put("/api/updateMovie", movieController.UpdateMovie);
 router.delete("/api/deletSingleMovie", movieController.deleteSingle);
 router.delete("/api/deletAllMovie", movieController.deleteAllMovie);
 router.post("/reviews", movieController.MovieReviews);
+router.post("/addTrending", movieController.AddTrendingMovies);
 router.get("/getReviews", movieController.getReviews);
 module.exports = router;
