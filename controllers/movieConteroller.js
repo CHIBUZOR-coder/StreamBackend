@@ -171,6 +171,107 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
   }
 };
 
+
+
+//Add favourite movies
+exports.AddTrendingMovies = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    // 1. Find the movie from the movies table
+    const existingMovie = await prisma.movies.findUnique({ where: { id } });
+
+    if (!existingMovie) {
+      return res.status(400).json({
+        success: false,
+        message: "Movie not found in movies database",
+      });
+    }
+
+
+
+
+    // 2. Extract only the necessary fields for trending table
+    const { name,
+        imageUrl,
+        videoUrl,
+        time,
+        approxiT,
+        popular,
+        year,
+        approxiY,
+        rating,
+        approxiR,
+        language,
+        description,
+        price,
+        trailer,
+        categoryId 
+      } = existingMovie;
+
+
+          // Optional: Check if it's already trending
+const isAlreadyTrending = await prisma.trending.findFirst({
+  where: { videoUrl } // or `movieId` if you’re tracking source
+});
+
+if (isAlreadyTrending) {
+  return res.status(409).json({
+    success: false,
+    message: "Movie already exists in trending list",
+  });
+}
+
+    // 3. Create new trending movie
+    const newTrendingMovie = await prisma.trending.create({
+      data: {
+        name,
+        imageUrl,
+        videoUrl,
+        time,
+        approxiT,
+        popular,
+        year,
+        approxiY,
+        rating,
+        approxiR,
+        language,
+        description,
+        price,
+        trailer,
+        categoryId
+      },
+    });
+
+    // 4. Send success response
+    res.status(201).json({
+      success: true,
+      message: "Movie added to trending list",
+      data: newTrendingMovie,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Get Movies
 exports.getMovies = async (req, res) => {
   try {
