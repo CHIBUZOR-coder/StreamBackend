@@ -228,7 +228,11 @@ if (isAlreadyTrending) {
     },
   });
 
-    // 3. Create new trending movie
+   return res.status(201).json({success:true, message:"movie trending count incremented successfully !"})
+  }
+
+  
+   // 3. Create new trending movie
     const newTrendingMovie = await prisma.trending.create({
       data: {
         name,
@@ -256,8 +260,6 @@ if (isAlreadyTrending) {
       data: newTrendingMovie,
     });
 
-  }
-  
 }catch (error) {
     console.error(error);
     res.status(500).json({
