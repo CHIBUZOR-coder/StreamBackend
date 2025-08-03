@@ -24,4 +24,5 @@ router.delete("/api/deletAllMovie", movieController.deleteAllMovie);
 router.post("/reviews", movieController.MovieReviews);
 router.post("/addTrending", movieController.AddTrendingMovies);
 router.get("/getReviews", movieController.getReviews);
+router.get("/getTrending", movieController.getTrending);
 module.exports = router;
