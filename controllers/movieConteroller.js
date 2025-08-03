@@ -173,7 +173,7 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
 
 
 
-//Add favourite movies
+//Add Trending movies
 exports.AddTrendingMovies = async (req, res) => {
   try {
     const { id } = req.body;
@@ -272,23 +272,28 @@ if (isAlreadyTrending) {
 
 
 
-exports.getTrending =async (req, res)=>{
+exports.getTrending = async (req, res) => {
   try {
-    
-const Trending = await prisma.trending.findMany({where:{count:{
-  gte:5
-}}})
+    const Trending = await prisma.trending.findMany({
+      orderBy: {
+        count: 'desc',
+      },
+    });
 
-if(!Trending){
-  return res.status(404).json({success:false, message:"No Trending Movies Found"})
-}
+    if (!Trending || Trending.length === 0) {
+      return res.status(404).json({ success: false, message: "No Trending Movies Found" });
+    }
 
-return res.status(200).json({success:true, message:"Trending movies found successfully !", data:Trending})
+    return res.status(200).json({
+      success: true,
+      message: "Trending movies found successfully!",
+      data: Trending,
+    });
   } catch (error) {
     console.log(error.message);
-   res.status(500).json({ message: "Server error while fetching trending movies" });
+    res.status(500).json({ message: "Server error while fetching trending movies" });
   }
-}
+};
 
 
 
