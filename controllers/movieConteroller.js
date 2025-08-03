@@ -368,7 +368,7 @@ try {
     return res.status(404).json({success:false, message:"Movie not found!"})
   }
 
-  return res.status(200).json({success:false, message:"Movie retrived successfully!", data:movie})
+  return res.status(200).json({success:true, message:"Movie retrived successfully!", data:movie})
 } catch (error) {
   console.log("error:", error.message);
   return res.status(500).json({success:false, message:"Server error! Please try ahgain later"})
