@@ -215,7 +215,7 @@ exports.AddTrendingMovies = async (req, res) => {
 
           // Optional: Check if it's already trending
 const isAlreadyTrending = await prisma.trending.findFirst({
-  where: { videoUrl } // or `movieId` if you’re tracking source
+  where: { name } // or `movieId` if you’re tracking source
 });
 
 if (isAlreadyTrending) {
