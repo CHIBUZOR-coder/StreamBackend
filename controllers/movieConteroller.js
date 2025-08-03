@@ -219,6 +219,13 @@ const isAlreadyTrending = await prisma.trending.findFirst({
 });
 
 if (isAlreadyTrending) {
+await prisma.trending.update({
+data:{
+  
+}
+})
+
+
   return res.status(409).json({
     success: false,
     message: "Movie already exists in trending list",

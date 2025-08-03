@@ -57,7 +57,7 @@ model MovieReviews {
   userRating  Int?
   userReview  String?
   ratingCount Int?
-  Trending    Trending? @relation(fields: [trendingId], references: [id])
+
   trendingId  Int?
 
   @@unique([userId, movieId], name: "user_movie_unique")
@@ -91,7 +91,7 @@ model Category {
   display    String     @default("show")
   created_at DateTime   @default(now())
   movies     Movies[]
-  Trending   Trending[]
+
 }
 
 model Movies {
@@ -122,32 +122,7 @@ model Movies {
   WatchCartMovies   WatchCartMovies[]
 }
 
-model Trending {
-  id                  Int                   @id @default(autoincrement())
-  name                String
-  image               String
-  video               String?
-  time                String
-  approxiT            String
-  popular             Boolean
-  category            Category              @relation(fields: [categoryId], references: [id])
-  favouriteCartMovies FavouriteCartMovies[]
-  categoryId          Int
-  year                String
-  approxiY            String
-  rating              Int?
-  watchCount          Int                   @default(0)
-  approxiR            String
-  language            String
-  description         String
-  price               Float
-  trailer             String
-  casts               CastsOnMovies[]
-  created_at          DateTime              @default(now())
-  product_update_at   DateTime              @updatedAt
-  movieReviews        MovieReviews[]
-  WatchCartMovies     WatchCartMovies[]
-}
+
 
 model Casts {
   id                Int             @id @default(autoincrement())
@@ -166,7 +141,7 @@ model CastsOnMovies {
   role       String    @default("")
   movie      Movies    @relation(fields: [movieId], references: [id])
   cast       Casts     @relation(fields: [castId], references: [id])
-  Trending   Trending? @relation(fields: [trendingId], references: [id])
+
   trendingId Int?
 
   @@unique([movieId, castId])
@@ -194,7 +169,7 @@ model FavouriteCartMovies {
 
   movie      Movies    @relation(fields: [movieId], references: [id], onDelete: Cascade)
   movieId    Int
-  Trending   Trending? @relation(fields: [trendingId], references: [id])
+
   trendingId Int?
 
   @@unique([favouriteCartId, movieId]) // Prevent duplicate entries
@@ -206,7 +181,7 @@ model WatchCartMovies {
 
   movie      Movies    @relation(fields: [movieId], references: [id], onDelete: Cascade)
   movieId    Int
-  Trending   Trending? @relation(fields: [trendingId], references: [id])
+
   trendingId Int?
 
   @@unique([watchCartId, movieId]) // Prevent duplicate entries
