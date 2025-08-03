@@ -247,7 +247,7 @@ if (isAlreadyTrending) {
         approxiR,
         language,
         description,
-        count:0,
+        count:1,
         price,
         trailer,
         categoryId
