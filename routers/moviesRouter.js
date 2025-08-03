@@ -25,4 +25,5 @@ router.post("/reviews", movieController.MovieReviews);
 router.post("/addTrending", movieController.AddTrendingMovies);
 router.get("/getReviews", movieController.getReviews);
 router.get("/getTrending", movieController.getTrending);
+router.get("/getSingleMovie", movieController.getSingleMovie);
 module.exports = router;

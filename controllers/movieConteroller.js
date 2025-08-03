@@ -354,6 +354,32 @@ exports.getMovies = async (req, res) => {
   }
 };
 
+
+
+
+
+
+//Get single movie
+exports.getSingleMovie = async(req, res)=>{
+const {id} = req.body
+try {
+  const movie = await prisma.movies.findUnique({where:{id: parseInt(id)}})
+  if(!movie){
+    return res.status(404).json({success:false, message:"Movie not found!"})
+  }
+
+  return res.status(200).json({success:false, message:"Movie retrived successfully!", data:movie})
+} catch (error) {
+  console.log("error:", error.message);
+  return res.status(500).json({success:false, message:"Server error! Please try ahgain later"})
+  
+}
+}
+
+
+
+
+
 //Update
 exports.UpdateMovie = async (req, res) => {
   const { name, movieId } = req.body;
