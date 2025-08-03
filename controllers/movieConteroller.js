@@ -362,6 +362,8 @@ exports.getMovies = async (req, res) => {
 //Get single movie
 exports.getSingleMovie = async(req, res)=>{
 const {id} = req.body
+console.log("reqbody:",req.body);
+
 try {
   const movie = await prisma.movies.findUnique({where:{id: parseInt(id)}})
   if(!movie){
