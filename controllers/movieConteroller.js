@@ -174,15 +174,114 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
 
 
 //Add Trending movies
+// exports.AddTrendingMovies = async (req, res) => {
+//   try {
+//     const { id } = req.body;
+
+//     console.log("req.body:", req.body);
+    
+
+//     // 1. Find the movie from the movies table
+//     const existingMovie = await prisma.movies.findUnique({ where: { id } });
+
+//     if (!existingMovie) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Movie not found in movies database",
+//       });
+//     }
+
+
+
+
+//     // 2. Extract only the necessary fields for trending table
+//     const { 
+      
+//       name,
+//         image,
+//         videoUrl,
+//         time,
+//         approxiT,
+//         popular,
+//         year,
+//         approxiY,
+//         rating,
+//         approxiR,
+//         language,
+//         description,
+//         price,
+//         trailer,
+//         categoryId 
+//       } = existingMovie;
+
+
+//           // Optional: Check if it's already trending
+// const isAlreadyTrending = await prisma.trending.findFirst({
+//   where: { name } // or `movieId` if you’re tracking source
+// });
+
+// if (isAlreadyTrending) {
+//   const updatedTrending = await prisma.trending.update({
+//     where: { id: isAlreadyTrending.id },
+//     data: {
+//       count: {
+//         increment: 1,
+//       },
+//     },
+//   });
+
+//    return res.status(201).json({success:true, message:"movie trending count incremented successfully !"})
+//   }
+
+
+//    // 3. Create new trending movie
+//     const newTrendingMovie = await prisma.trending.create({
+//       data: {
+//         name,
+//         image,
+//         videoUrl,
+//         time,
+//         approxiT,
+//         popular,
+//         year,
+//         approxiY,
+//         rating,
+//         approxiR,
+//         language,
+//         description,
+//         count:1,
+//         price,
+//         trailer,
+//         categoryId
+//       },
+//     });
+
+//     // 4. Send success response
+//     res.status(201).json({
+//       success: true,
+//       message: "Movie added to trending list",
+//       data: newTrendingMovie,
+//     });
+
+// }catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
+
 exports.AddTrendingMovies = async (req, res) => {
   try {
     const { id } = req.body;
 
     console.log("req.body:", req.body);
-    
 
     // 1. Find the movie from the movies table
-    const existingMovie = await prisma.movies.findUnique({ where: { id } });
+    const existingMovie = await prisma.movies.findUnique({
+      where: { id },
+    });
 
     if (!existingMovie) {
       return res.status(400).json({
@@ -191,50 +290,50 @@ exports.AddTrendingMovies = async (req, res) => {
       });
     }
 
-
-
-
     // 2. Extract only the necessary fields for trending table
-    const { name,
-        image,
-        videoUrl,
-        time,
-        approxiT,
-        popular,
-        year,
-        approxiY,
-        rating,
-        approxiR,
-        language,
-        description,
-        price,
-        trailer,
-        categoryId 
-      } = existingMovie;
+    const {
+      name,
+      image,
+      videoUrl,
+      time,
+      approxiT,
+      popular,
+      year,
+      approxiY,
+      rating,
+      approxiR,
+      language,
+      description,
+      price,
+      trailer,
+      categoryId,
+    } = existingMovie;
 
+    // Optional: Check if it's already trending
+    const isAlreadyTrending = await prisma.trending.findFirst({
+      where: { name }, // or use `movieId: id` if applicable
+    });
 
-          // Optional: Check if it's already trending
-const isAlreadyTrending = await prisma.trending.findFirst({
-  where: { name } // or `movieId` if you’re tracking source
-});
+    if (isAlreadyTrending) {
+      const updatedTrending = await prisma.trending.update({
+        where: { id: isAlreadyTrending.id },
+        data: {
+          count: {
+            increment: 1,
+          },
+        },
+      });
 
-if (isAlreadyTrending) {
-  const updatedTrending = await prisma.trending.update({
-    where: { id: isAlreadyTrending.id },
-    data: {
-      count: {
-        increment: 1,
-      },
-    },
-  });
+      return res.status(201).json({
+        success: true,
+        message: "Movie trending count incremented successfully!",
+      });
+    }
 
-   return res.status(201).json({success:true, message:"movie trending count incremented successfully !"})
-  }
-
-
-   // 3. Create new trending movie
+    // 3. Create new trending movie
     const newTrendingMovie = await prisma.trending.create({
       data: {
+        movieId: id, // use the original id here
         name,
         image,
         videoUrl,
@@ -247,10 +346,10 @@ if (isAlreadyTrending) {
         approxiR,
         language,
         description,
-        count:1,
+        count: 1,
         price,
         trailer,
-        categoryId
+        categoryId,
       },
     });
 
@@ -260,8 +359,7 @@ if (isAlreadyTrending) {
       message: "Movie added to trending list",
       data: newTrendingMovie,
     });
-
-}catch (error) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
@@ -269,7 +367,6 @@ if (isAlreadyTrending) {
     });
   }
 };
-
 
 
 exports.getTrending = async (req, res) => {
@@ -371,7 +468,7 @@ try {
   }
 console.log("movie:", movie);
 
-  return res.status(200).json({success:true, message:"Movie retrived successfully!", data:movie})
+  return res.status(200).json({success:true, message:"Movie retrived successfully!", data:movie, id : movie?.id})
 } catch (error) {
   console.log("error:", error.message);
   return res.status(500).json({success:false, message:"Server error! Please try ahgain later"})
