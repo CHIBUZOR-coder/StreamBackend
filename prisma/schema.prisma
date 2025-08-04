@@ -59,7 +59,7 @@ model MovieReviews {
   ratingCount Int?
 
   trendingId Int?
-
+  Trending   Trending? @relation(fields: [trendingId], references: [id])
 
   @@unique([userId, movieId], name: "user_movie_unique")
 }
@@ -93,7 +93,7 @@ model Category {
   created_at DateTime @default(now())
   movies     Movies[]
 
-
+  Trending Trending[]
 }
 
 model Movies {
@@ -143,7 +143,7 @@ model CastsOnMovies {
   cast    Casts  @relation(fields: [castId], references: [id])
 
   trendingId Int?
-
+  Trending   Trending? @relation(fields: [trendingId], references: [id])
 
   @@unique([movieId, castId])
 }
@@ -164,34 +164,34 @@ model WatchCart {
   watchCartMovies WatchCartMovies[]
 }
 
-// model Trending {
-//   id                  Int                   @id @default(autoincrement())
-//   name                String
-//   image               String
-//   video               String?
-//   time                String
-//   movieId Int
-//   approxiT            String
-//   popular             Boolean
-//   category            Category              @relation(fields: [categoryId], references: [id])
-//   favouriteCartMovies FavouriteCartMovies[]
-//   categoryId          Int                   @default(0)
-//   year                String
-//   approxiY            String
-//   rating              Int?
-//   watchCount          Int                   @default(0)
-//   approxiR            String
-//   language            String
-//   count               Int
-//   description         String
-//   price               Float
-//   trailer             String
-//   casts               CastsOnMovies[]
-//   created_at          DateTime              @default(now())
-//   product_update_at   DateTime              @updatedAt
-//   movieReviews        MovieReviews[]
-//   WatchCartMovies     WatchCartMovies[]
-// }
+model Trending {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  image               String
+  video               String?
+  time                String
+  approxiT            String
+  movieId             Int
+  popular             Boolean
+  category            Category              @relation(fields: [categoryId], references: [id])
+  favouriteCartMovies FavouriteCartMovies[]
+  categoryId          Int                   @default(0)
+  year                String
+  approxiY            String
+  rating              Int?
+  watchCount          Int                   @default(0)
+  approxiR            String
+  language            String
+  count               Int
+  description         String
+  price               Float
+  trailer             String
+  casts               CastsOnMovies[]
+  created_at          DateTime              @default(now())
+  product_update_at   DateTime              @updatedAt
+  movieReviews        MovieReviews[]
+  WatchCartMovies     WatchCartMovies[]
+}
 
 model FavouriteCartMovies {
   favouriteCart   FavouriteCart @relation(fields: [favouriteCartId], references: [id], onDelete: Cascade)
@@ -201,7 +201,7 @@ model FavouriteCartMovies {
   movieId Int
 
   trendingId Int?
-
+  Trending   Trending? @relation(fields: [trendingId], references: [id])
 
   @@unique([favouriteCartId, movieId]) // Prevent duplicate entries
 }
@@ -214,7 +214,7 @@ model WatchCartMovies {
   movieId Int
 
   trendingId Int?
-
+  Trending   Trending? @relation(fields: [trendingId], references: [id])
 
   @@unique([watchCartId, movieId]) // Prevent duplicate entries
 }
