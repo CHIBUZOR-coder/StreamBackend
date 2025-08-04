@@ -369,6 +369,7 @@ try {
   if(!movie){
     return res.status(404).json({success:false, message:"Movie not found!"})
   }
+console.log("movie:", movie);
 
   return res.status(200).json({success:true, message:"Movie retrived successfully!", data:movie})
 } catch (error) {
