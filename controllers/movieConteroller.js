@@ -462,7 +462,22 @@ const {id} = req.body
 console.log("reqbody:",req.body);
 
 try {
-  const movie = await prisma.movies.findUnique({where:{id: parseInt(id)}})
+  const movie = await prisma.movies.findUnique({where:{id: parseInt(id)}, include:{
+  casts: {
+          select: {
+            role: true,
+            cast: {
+              select: {
+                role: true,
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+  }})
+  
   if(!movie){
     return res.status(404).json({success:false, message:"Movie not found!"})
   }
