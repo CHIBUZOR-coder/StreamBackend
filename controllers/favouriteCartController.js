@@ -105,6 +105,29 @@ exports.getFavourite = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.removeFavouriteMovie = async (req, res) => {
   try {
     const { name } = req.params; // User's name
