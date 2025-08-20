@@ -59,7 +59,7 @@ exports.addToFavouriteCart = async (req, res) => {
 
 exports.getFavourite = async (req, res) => {
   try {
-    const { name } = req.params;
+    const name = req.params.name || req.body.name;
 
     // console.log("userId:", id);
 
