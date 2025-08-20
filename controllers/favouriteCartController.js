@@ -60,6 +60,7 @@ exports.addToFavouriteCart = async (req, res) => {
 exports.getFavourite = async (req, res) => {
   try {
     const name = req.params.name || req.body.name;
+    console.log("name:", name);
 
     // console.log("userId:", id);
 
@@ -105,36 +106,12 @@ exports.getFavourite = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 exports.removeFavouriteMovie = async (req, res) => {
   try {
     const { name } = req.params; // User's name
     const { movieId } = req.body; // Movie ID to remove
     console.log("Received params:", req.params);
     console.log("body:", req.body);
-    
 
     // Find the user by name
     const user = await prisma.user.findUnique({ where: { name } });
