@@ -60,7 +60,7 @@ exports.addToWatchCount = async (req, res) => {
 exports.getWatchCount = async (req, res) => {
   try {
     // console.log("userId:", id);
-    const name = req.params.name || req.body.name;
+     const name = req.params.name || req.query.name || req.body.name;
 
     const user = await prisma.user.findUnique({ where: { name } });
 

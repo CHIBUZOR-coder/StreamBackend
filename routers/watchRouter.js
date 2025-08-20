@@ -4,5 +4,6 @@ const watchController = require("../controllers/watchController");
 
 router.post("/addwatchCount", watchController.addToWatchCount);
 router.get("/getWatchCount", watchController.getWatchCount);
+router.post("/getWatchCount", watchController.getWatchCount);
 
 module.exports = router;
