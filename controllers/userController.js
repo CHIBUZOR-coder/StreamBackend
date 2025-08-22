@@ -772,7 +772,7 @@ exports.accountRecovery = async (req, res) => {
       },
     });
 
-    const resetLink = `${process.env.frontendUrl}/resetPassword/${resetToken}`;
+    const resetLink = `${frontendUrl}/resetPassword/${resetToken}`;
     const mailOptions = {
       from: process.env.EMAIL_HOST_USER,
       to: email,
