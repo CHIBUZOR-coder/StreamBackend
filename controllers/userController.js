@@ -742,7 +742,9 @@ exports.watchCount = async (req, res) => {
 };
 
 exports.accountRecovery = async (req, res) => {
-  const { email } = req.body;
+  const { email, platform } = req.body;
+
+  const frontendUrl = platform === "web" ? process.env.FRONTEND_URL : process.env.MOBILE_URL;
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -770,7 +772,7 @@ exports.accountRecovery = async (req, res) => {
       },
     });
 
-    const resetLink = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
+    const resetLink = `${process.env.frontendUrl}/resetPassword/${resetToken}`;
     const mailOptions = {
       from: process.env.EMAIL_HOST_USER,
       to: email,
