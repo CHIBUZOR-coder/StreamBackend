@@ -10,6 +10,8 @@ const transporter = require("../config/email");
 const jwt = require("jsonwebtoken");
 const cron = require("node-cron");
 const { verifyOtp, saveOtp } = require("../config/otpStore");
+const crypto = require("crypto");
+
 
 
 //render is not recognising my prisma migrations. so i use an old field resetToken which is either true of false checking if user has been verified by email
@@ -160,14 +162,9 @@ const { verifyOtp, saveOtp } = require("../config/otpStore");
 //   }
 // };
 
-const crypto = require("crypto");
 
-const { prisma } = require("../prismaClient"); // adjust path
-const { uploadToCloudinary } = require("../utils/cloudinary");
-const {
-  sendVerificationEmail,
-  sendOtpEmail,
-} = require("../utils/emailService"); // Add sendOtpEmail for OTP emails
+
+
 
 exports.createUser = async (req, res) => {
   const { email, phone, userName, name, password, confirmpassword, platform } =
