@@ -161,8 +161,7 @@ const { verifyOtp, saveOtp } = require("../config/otpStore");
 // };
 
 const crypto = require("crypto");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+
 const { prisma } = require("../prismaClient"); // adjust path
 const { uploadToCloudinary } = require("../utils/cloudinary");
 const {

@@ -29,5 +29,8 @@
     "prisma": "^5.22.0",
     "redis": "^5.8.2",
     "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6"
   }
 }
