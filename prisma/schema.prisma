@@ -50,7 +50,7 @@ model Receipt {
 model MovieReviews {
   id          Int     @id @default(autoincrement())
   userId      Int
-  user        User    @relation(fields: [userId], references: [id])
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie       Movies  @relation(fields: [movieId], references: [id])
   movieId     Int
   test        String?
@@ -150,7 +150,7 @@ model CastsOnMovies {
 
 model FavouriteCart {
   id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   favouriteCartMovies FavouriteCartMovies[]
@@ -158,7 +158,7 @@ model FavouriteCart {
 
 model WatchCart {
   id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   watchCartMovies WatchCartMovies[]
@@ -217,4 +217,15 @@ model WatchCartMovies {
   Trending   Trending? @relation(fields: [trendingId], references: [id])
 
   @@unique([watchCartId, movieId]) // Prevent duplicate entries
+}
+
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }

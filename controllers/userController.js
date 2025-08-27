@@ -9,47 +9,180 @@ const cloudinary = require("../config/cloudinary");
 const transporter = require("../config/email");
 const jwt = require("jsonwebtoken");
 const cron = require("node-cron");
+const { verifyOtp, saveOtp } = require("../config/otpStore");
+
 
 //render is not recognising my prisma migrations. so i use an old field resetToken which is either true of false checking if user has been verified by email
-exports.createUser = async (req, res) => {
-  const { email, phone, userName, name, password, confirmpassword } = req.body;
+// exports.createUser = async (req, res) => {
+//   const { email, phone, userName, name, password, confirmpassword } = req.body;
 
-  if (!email) {
+//   if (!email) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "All fields are required.",
+//     });
+//   } else if (!phone) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "phone number is required!",
+//     });
+//   } else if (!name) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "name is required!",
+//     });
+//   } else if (!password) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "password is required!",
+//     });
+//   } else if (!confirmpassword) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "confirmpassword is required!",
+//     });
+//   } else if (!userName) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "confirmpassword is required!",
+//     });
+//   }
+
+//   console.log("body:", req.body);
+
+//   try {
+//     // Validate email
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid email format.",
+//       });
+//     }
+
+//     // Check if user already exists
+//     const existingUser = await prisma.user.findUnique({ where: { email } });
+//     if (existingUser) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "User already exists.",
+//       });
+//     }
+
+//     const passwordRegex = /^[A-Z](?=.*[\W_])/;
+//     // ^[A-Z]       -> Ensures the password starts with a capital letter
+//     // (?=.*[\W_])  -> Ensures at least one special character (non-alphanumeric)
+
+//     if (!passwordRegex.test(password)) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Password must start with a capital letter and contain at least one special character.",
+//       });
+//     }
+//     // Validate passwords
+//     if (password.length < 8) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Password must be at least 8 characters.",
+//       });
+//     }
+//     if (password !== confirmpassword) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Passwords do not match.",
+//       });
+//     }
+
+//     let imageUrl;
+
+//     // Validate file upload
+//     if (req.file) {
+//       console.log("file", req.file);
+//       imageUrl = await uploadToCloudinary(req.file.buffer, "image");
+//       if (!imageUrl) {
+//         return res.status(500).json({
+//           success: false,
+//           message: "Failed to upload image.",
+//         });
+//       }
+//     }
+
+//     // Upload image to Cloudinary
+
+//     // Hash password
+//     const salt = await bcrypt.genSalt(11);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     // Generate email verification token
+//     const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+//       expiresIn: "1h",
+//     });
+
+//     // Create user in the database (set isVerified to false initially)
+//     const newUser = await prisma.user.create({
+//       data: {
+//         email,
+//         name,
+//         password: hashedPassword,
+//         image: imageUrl || null,
+//         phone,
+//         userName,
+//       },
+//     });
+
+//     if (!newUser) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "User registration failed.",
+//       });
+//     }
+
+//     // Send verification email
+//     const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
+
+//     await sendVerificationEmail(email, verificationLink);
+
+//     return res.status(201).json({
+//       success: true,
+//       message: `User registered successfully. Please check ${email} for verification.`,
+//       user: {
+//         id: newUser.id,
+//         email: newUser.email,
+//         name: newUser.name,
+//         image: newUser.image,
+//         userName: userName,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error creating user:", error.message);
+//     res.status(500).json({ success: false, message: "Server error." });
+//   }
+// };
+
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { prisma } = require("../prismaClient"); // adjust path
+const { uploadToCloudinary } = require("../utils/cloudinary");
+const {
+  sendVerificationEmail,
+  sendOtpEmail,
+} = require("../utils/emailService"); // Add sendOtpEmail for OTP emails
+
+exports.createUser = async (req, res) => {
+  const { email, phone, userName, name, password, confirmpassword, platform } =
+    req.body;
+
+  if (!email || !phone || !userName || !name || !password || !confirmpassword) {
     return res.status(400).json({
       success: false,
       message: "All fields are required.",
     });
-  } else if (!phone) {
-    return res.status(400).json({
-      success: false,
-      message: "phone number is required!",
-    });
-  } else if (!name) {
-    return res.status(400).json({
-      success: false,
-      message: "name is required!",
-    });
-  } else if (!password) {
-    return res.status(400).json({
-      success: false,
-      message: "password is required!",
-    });
-  } else if (!confirmpassword) {
-    return res.status(400).json({
-      success: false,
-      message: "confirmpassword is required!",
-    });
-  } else if (!userName) {
-    return res.status(400).json({
-      success: false,
-      message: "confirmpassword is required!",
-    });
   }
 
-  console.log("body:", req.body);
-
   try {
-    // Validate email
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -67,10 +200,8 @@ exports.createUser = async (req, res) => {
       });
     }
 
+    // Password validation
     const passwordRegex = /^[A-Z](?=.*[\W_])/;
-    // ^[A-Z]       -> Ensures the password starts with a capital letter
-    // (?=.*[\W_])  -> Ensures at least one special character (non-alphanumeric)
-
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
         success: false,
@@ -78,13 +209,14 @@ exports.createUser = async (req, res) => {
           "Password must start with a capital letter and contain at least one special character.",
       });
     }
-    // Validate passwords
+
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters.",
       });
     }
+
     if (password !== confirmpassword) {
       return res.status(400).json({
         success: false,
@@ -92,11 +224,9 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    let imageUrl;
-
-    // Validate file upload
+    // Handle image upload
+    let imageUrl = null;
     if (req.file) {
-      console.log("file", req.file);
       imageUrl = await uploadToCloudinary(req.file.buffer, "image");
       if (!imageUrl) {
         return res.status(500).json({
@@ -106,26 +236,20 @@ exports.createUser = async (req, res) => {
       }
     }
 
-    // Upload image to Cloudinary
-
     // Hash password
     const salt = await bcrypt.genSalt(11);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate email verification token
-    const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
-      expiresIn: "1h",
-    });
-
-    // Create user in the database (set isVerified to false initially)
+    // Create user in DB with isVerified false
     const newUser = await prisma.user.create({
       data: {
         email,
         name,
         password: hashedPassword,
-        image: imageUrl || null,
+        image: imageUrl,
         phone,
         userName,
+        isVerified: false,
       },
     });
 
@@ -136,22 +260,45 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    // Send verification email
-    const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
+    // Logic split: Web vs Mobile
+    if (platform === "mobile") {
+      // Generate OTP
+      const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // valid for 10 minutes
 
-    await sendVerificationEmail(email, verificationLink);
+      // Send OTP email
+      await sendOtpEmail(email, otp);
+      saveOtp(email, otp);
+      return res.status(201).json({
+        success: true,
+        message: `User registered successfully. An OTP has been sent to ${email} for verification.`,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          userName: newUser.userName,
+        },
+      });
+    } else {
+      // Web flow: Send email verification link
+      const verifyEmailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, {
+        expiresIn: "1h",
+      });
 
-    return res.status(201).json({
-      success: true,
-      message: `User registered successfully. Please check ${email} for verification.`,
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        image: newUser.image,
-        userName: userName,
-      },
-    });
+      const verificationLink = `https://stream-ashy-theta.vercel.app/verifyEmail?token=${verifyEmailToken}`;
+      await sendVerificationEmail(email, verificationLink);
+
+      return res.status(201).json({
+        success: true,
+        message: `User registered successfully. Please check ${email} for verification link.`,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          userName: newUser.userName,
+        },
+      });
+    }
   } catch (error) {
     console.error("Error creating user:", error.message);
     res.status(500).json({ success: false, message: "Server error." });
@@ -162,7 +309,7 @@ exports.createUser = async (req, res) => {
 const sendVerificationEmail = async (email, verificationLink) => {
   const mailOptions = {
     from: {
-      name:"Stream",
+      name: "Stream",
       address: process.env.EMAIL_HOST_USER,
     },
     to: email,
@@ -182,6 +329,41 @@ const sendVerificationEmail = async (email, verificationLink) => {
           border: 5px solid #0B0F29; color: #F20000; text-decoration: none; font-weight: bold; border-radius: 5px;"
           onmouseover="this.style.background='#FFF'; this.style.color='#0B0F29';"
           onmouseout="this.style.background='#0B0F29'; this.style.color='#F20000';">Verify Email</a>
+          <p style="margin-top: 20px; font-size: 14px; color:  #0B0F29;">If you did not request this, please ignore this email.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Verification email sent to ${email}`);
+  } catch (error) {
+    console.error(`Error sending email to ${email}:`, error);
+  }
+};
+
+//send otp
+const sendOtpEmail = async (email, otp) => {
+  const mailOptions = {
+    from: {
+      name: "Stream",
+      address: process.env.EMAIL_HOST_USER,
+    },
+    to: email,
+    subject: "Email Verification",
+    html: `
+      <div style="width: 100%; height:600px; max-width: 600px; margin: auto; text-align: center;
+      font-family: Arial, sans-serif; border-radius: 10px; overflow: hidden;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="height: 300px;">
+          <tr>
+            <td style="background: url('https://res.cloudinary.com/dtjgj2odu/image/upload/v1739154208/logo_c6zxpk.png') 
+            no-repeat center center; background-size: cover;"></td>
+          </tr>
+        </table>
+        <div style="padding: 20px; color:  #0B0F29;">
+          <p style="font-size: 16px;">Click the button below to verify your email. This link is valid for 1 hour.</p>
+          <p style="font-size: 16px;">Your OTP is: <strong>${otp}</strong></p>
           <p style="margin-top: 20px; font-size: 14px; color:  #0B0F29;">If you did not request this, please ignore this email.</p>
         </div>
       </div>
@@ -219,53 +401,127 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
   }
 };
 
-exports.verifyEmail = async (req, res) => {
-  const { token } = req.body;
-  console.log("req.body:", req.body);
+// exports.verifyEmail = async (req, res) => {
+//   const { token } = req.body;
+//   console.log("req.body:", req.body);
 
-  if (!token) {
+//   if (!token) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "Token and email are required",
+//     });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.EMAIL_SECRET); // Use your JWT secret key
+
+//     if (!decoded) {
+//       return res.status(401).json({ success: false, message: "Invalid token" });
+//     }
+//     // Extract email
+//     const { email } = decoded;
+
+//     const user = await prisma.user.findUnique({
+//       where: { email },
+//       select: { id: true },
+//     });
+//     if (!user) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Unable to find user" });
+//     }
+
+//     // Update user in database (set resetToken to true or handle verification logic)
+//     await prisma.user.update({
+//       where: { id: user.id },
+//       data: { status: true },
+//     });
+
+//     // If verification is successful, send a success response
+//     return res.status(200).json({
+//       success: true,
+//       message: "Email verified successfully",
+//       data: decoded, // Optionally send decoded data
+//     });
+//   } catch (error) {
+//     console.error("Email verification error:", error.message);
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "Email verification failed" });
+//   }
+// };
+
+exports.verifyEmail = async (req, res) => {
+  const { token, otp, email } = req.body;
+
+  if (!token && (!otp || !email)) {
     return res.status(400).json({
       success: false,
-      message: "Token and email are required",
+      message: "Provide either a token or email with OTP.",
     });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.EMAIL_SECRET); // Use your JWT secret key
+    let verifiedEmail;
 
-    if (!decoded) {
-      return res.status(401).json({ success: false, message: "Invalid token" });
+    if (token) {
+      // --- Web token verification ---
+      const decoded = jwt.verify(token, process.env.EMAIL_SECRET);
+      if (!decoded?.email) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid or expired token",
+        });
+      }
+      verifiedEmail = decoded.email;
+    } else if (otp && email) {
+      // --- Mobile OTP verification ---
+      const isValid = verifyOtp(email, otp);
+      if (!isValid) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid or expired OTP",
+        });
+      }
+      verifiedEmail = email;
     }
-    // Extract email
-    const { email } = decoded;
 
+    // Look up user
     const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
+      where: { email: verifiedEmail },
+      select: { id: true, status: true },
     });
+
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Unable to find user" });
+      return res.status(400).json({
+        success: false,
+        message: "Unable to find user",
+      });
     }
 
-    // Update user in database (set resetToken to true or handle verification logic)
+    if (user.status === true) {
+      return res.status(200).json({
+        success: true,
+        message: "Email already verified",
+      });
+    }
+
+    // Update user status to verified
     await prisma.user.update({
       where: { id: user.id },
       data: { status: true },
     });
 
-    // If verification is successful, send a success response
     return res.status(200).json({
       success: true,
       message: "Email verified successfully",
-      data: decoded, // Optionally send decoded data
     });
   } catch (error) {
     console.error("Email verification error:", error.message);
-    return res
-      .status(500)
-      .json({ success: false, message: "Email verification failed" });
+    return res.status(500).json({
+      success: false,
+      message: "Email verification failed",
+    });
   }
 };
 
@@ -744,7 +1000,8 @@ exports.watchCount = async (req, res) => {
 exports.accountRecovery = async (req, res) => {
   const { email, platform } = req.body;
 
-  const frontendUrl = platform === "web" ? process.env.FRONTEND_URL : process.env.MOBILE_URL;
+  const frontendUrl =
+    platform === "web" ? process.env.FRONTEND_URL : process.env.MOBILE_URL;
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -862,7 +1119,7 @@ exports.resetPassword = async (req, res) => {
       where: { email: decoded.email, resetToken: token },
     });
 
-      if (!user) {
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: "Invalid or expired reset token!",
@@ -885,8 +1142,6 @@ exports.resetPassword = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Passwords does not match!" });
     }
-
-  
 
     // Hash new password
     const salt = await bcrypt.genSalt(11);
