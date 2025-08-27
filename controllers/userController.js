@@ -12,8 +12,6 @@ const cron = require("node-cron");
 const { verifyOtp, saveOtp } = require("../config/otpStore");
 const crypto = require("crypto");
 
-
-
 //render is not recognising my prisma migrations. so i use an old field resetToken which is either true of false checking if user has been verified by email
 // exports.createUser = async (req, res) => {
 //   const { email, phone, userName, name, password, confirmpassword } = req.body;
@@ -162,10 +160,6 @@ const crypto = require("crypto");
 //   }
 // };
 
-
-
-
-
 exports.createUser = async (req, res) => {
   const { email, phone, userName, name, password, confirmpassword, platform } =
     req.body;
@@ -242,10 +236,9 @@ exports.createUser = async (req, res) => {
         email,
         name,
         password: hashedPassword,
-        image: imageUrl,
+        image: imageUrl || null,
         phone,
         userName,
-        isVerified: false,
       },
     });
 
