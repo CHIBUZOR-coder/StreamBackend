@@ -466,7 +466,7 @@ exports.verifyEmail = async (req, res) => {
       verifiedEmail = decoded.email;
     } else if (otp && email) {
       // --- Mobile OTP verification ---
-      const isValid = verifyOtp(email, otp);
+      const isValid = await verifyOtp(email, otp);
       if (!isValid) {
         return res.status(401).json({
           success: false,
