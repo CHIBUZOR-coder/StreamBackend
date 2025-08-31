@@ -9,6 +9,11 @@ const prisma = new PrismaClient();
 async function saveOtp(email, otp) {
   const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // expires in 10 minutes
 
+  if (!otp) {
+    return resizeBy
+      .status(400)
+      .json({ success: false, message: "No otp provided!" });
+  }
   // Upsert OTP for this email (update if exists, otherwise create)
   await prisma.otp.upsert({
     where: { email },
