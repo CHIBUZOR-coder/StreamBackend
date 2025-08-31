@@ -496,13 +496,15 @@ exports.verifyEmail = async (req, res) => {
         success: true,
         message: "Email already verified",
       });
+    }else{
+      // Update user status to verified
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { status: true },
+      });
     }
 
-    // Update user status to verified
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { status: true },
-    });
+ 
 
     return res.status(200).json({
       success: true,
