@@ -490,6 +490,8 @@ exports.verifyEmail = async (req, res) => {
     }
 
     if (user.status === true) {
+      console.log("Email already verified");
+      
       return res.status(200).json({
         success: true,
         message: "Email already verified",
