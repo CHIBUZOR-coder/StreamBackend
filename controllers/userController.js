@@ -466,7 +466,8 @@ exports.verifyEmail = async (req, res) => {
       verifiedEmail = decoded.email;
     } else if (otp && email) {
       // --- Mobile OTP verification ---
-      const isValid =  verifyOtp(email, otp);
+      const isValid = await verifyOtp(email, otp);
+
       if (!isValid) {
         return res.status(401).json({
           success: false,
@@ -482,9 +483,6 @@ exports.verifyEmail = async (req, res) => {
       select: { id: true, status: true },
     });
 
-
-
-
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -492,26 +490,22 @@ exports.verifyEmail = async (req, res) => {
       });
     }
 
-
-    console.log("status before updating:",user?.status);
-    
+    console.log("status before updating:", user?.status);
 
     if (user.status === true) {
       console.log("Email already verified");
-      
+
       return res.status(200).json({
         success: true,
         message: "Email already verified",
       });
-    }else{
+    } else {
       // Update user status to verified
       await prisma.user.update({
         where: { id: user.id },
         data: { status: true },
       });
     }
-
- 
 
     return res.status(200).json({
       success: true,
