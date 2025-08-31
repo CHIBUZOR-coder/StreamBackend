@@ -253,7 +253,7 @@ exports.createUser = async (req, res) => {
     if (platform === "mobile") {
       // Generate OTP
       const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
-      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // valid for 10 minutes
+      // const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // valid for 10 minutes
 
       // Send OTP email
       await sendOtpEmail(email, otp);
@@ -442,6 +442,7 @@ const uploadToCloudinary = async (fileBuffer, resourceType) => {
 
 exports.verifyEmail = async (req, res) => {
   const { token, otp, email } = req.body;
+  console.log("req.body:", req.body);
 
   if (!token && (!otp || !email)) {
     return res.status(400).json({
