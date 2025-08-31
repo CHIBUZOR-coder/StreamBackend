@@ -222,7 +222,7 @@ model WatchCartMovies {
 
 model Otp {
   id        Int      @id @default(autoincrement())
-  email     String
+  email     String   @unique
   otp       String
   expiresAt DateTime
   createdAt DateTime @default(now())
