@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
  */
 async function saveOtp(email, otp) {
   const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // expires in 10 minutes
+  console.log(`Saving OTP for ${email}: ${otp}`);
 
   if (!otp) {
     return resizeBy
